@@ -1,0 +1,18 @@
+name = "metka-api"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[vars]
+BOT_USERNAME = "metka_city_bot"   # имя бота из BotFather, без @
+APP_NAME = "app"                  # короткое имя Mini App из BotFather (/newapp)
+WEBAPP_URL = "https://YOUR_GITHUB_USER.github.io/metka/"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "metka"
+database_id = "PASTE_DATABASE_ID"
+
+# Секреты (не хранятся в коде), задаются командами:
+#   npx wrangler secret put BOT_TOKEN
+#   npx wrangler secret put WEBHOOK_SECRET
+#   npx wrangler secret put ADMIN_KEY
