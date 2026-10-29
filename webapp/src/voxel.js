@@ -71,8 +71,8 @@ const VOX = (() => {
     for (let z = 0; z < 7; z++) { const r = z < 3 ? z : 6 - z; for (let x = -r; x <= r; x++) for (let y = -r; y <= r; y++) if (Math.abs(x) + Math.abs(y) <= r) v.push([x + 3, y + 3, z, (x + y + z) % 3 === 0 ? shadeHex(color, 1.25) : color]); }
     return v;
   }
-  function crate() {
-    const v = [], Y = "#FFD43B", D = "#1E2230";
+  function crate(Y = "#FFD43B", D = "#1E2230") {
+    const v = [];
     for (let x = 0; x < 6; x++) for (let y = 0; y < 6; y++) for (let z = 0; z < 6; z++) {
       const edgeCount = (x === 0 || x === 5) + (y === 0 || y === 5) + (z === 0 || z === 5);
       if (edgeCount === 0) continue;

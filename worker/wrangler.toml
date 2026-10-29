@@ -6,6 +6,7 @@ compatibility_date = "2025-06-01"
 BOT_USERNAME = "Metkadetect_bot"   # имя бота из BotFather, без @
 APP_NAME = "app"                  # короткое имя Mini App из BotFather (/newapp)
 WEBAPP_URL = "https://mabient.github.io/metka/"
+OWNER_ID = "6618423864"           # владелец: админ навсегда, синяя галочка, нельзя забанить
 
 [ai]
 binding = "AI"   # распознавание того, что на фото (бесплатный лимит Cloudflare)

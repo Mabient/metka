@@ -144,37 +144,65 @@ export function makePattern(rarity, emoji, tone, rand = Math.random) {
 }
 
 /* ---------- cases ---------- */
-// kind: xp | avatar | status | banner. Duplicates of owned items turn into XP.
+// Case tiers: the rarer the case, the better the odds.
+export const CASE_TIERS = {
+  common: { t: "Обычный кейс",      c: "#9AA4B8", odds: { common: 60, rare: 28, epic: 10, legend: 2 } },
+  rare:   { t: "Редкий кейс",       c: "#4D8BFF", odds: { common: 30, rare: 45, epic: 20, legend: 5 } },
+  epic:   { t: "Эпический кейс",    c: "#A66BFF", odds: { common: 8,  rare: 40, epic: 40, legend: 12 } },
+  legend: { t: "Легендарный кейс",  c: "#FFB020", odds: { common: 0,  rare: 25, epic: 50, legend: 25 } },
+};
+export const TIER_IDS = Object.keys(CASE_TIERS);
+
+// kind: xp | avatar | status | banner | skin | gift. Duplicates of owned cosmetics turn into XP; gifts are always new numbered copies.
 export const CASE_ITEMS = [
   { id: "xp25",   kind: "xp",     v: 25,  r: "common", t: "+25 XP",            e: "✨" },
   { id: "xp60",   kind: "xp",     v: 60,  r: "rare",   t: "+60 XP",            e: "💫" },
   { id: "xp150",  kind: "xp",     v: 150, r: "epic",   t: "+150 XP",           e: "🌟" },
+  { id: "av_wolf",    kind: "avatar", v: "🐺", r: "common", t: "Аватар «Волк»",     e: "🐺" },
   { id: "av_peacock", kind: "avatar", v: "🦚", r: "rare",   t: "Аватар «Павлин»",   e: "🦚" },
   { id: "av_jelly",   kind: "avatar", v: "🪼", r: "rare",   t: "Аватар «Медуза»",   e: "🪼" },
   { id: "av_shark",   kind: "avatar", v: "🦈", r: "rare",   t: "Аватар «Акула»",    e: "🦈" },
-  { id: "av_wolf",    kind: "avatar", v: "🐺", r: "common", t: "Аватар «Волк»",     e: "🐺" },
   { id: "av_dragon",  kind: "avatar", v: "🐉", r: "epic",   t: "Аватар «Дракон»",   e: "🐉" },
   { id: "av_eagle",   kind: "avatar", v: "🦅", r: "epic",   t: "Аватар «Орёл»",     e: "🦅" },
   { id: "av_fairy",   kind: "avatar", v: "🧚", r: "legend", t: "Аватар «Фея»",      e: "🧚" },
   { id: "st_clover",  kind: "status", v: "🍀", r: "rare",   t: "Статус «Клевер»",   e: "🍀" },
   { id: "st_rainbow", kind: "status", v: "🌈", r: "epic",   t: "Статус «Радуга»",   e: "🌈" },
   { id: "st_gem",     kind: "status", v: "💠", r: "legend", t: "Статус «Бриллиант»", e: "💠" },
-  { id: "bn_neon",    kind: "banner", v: "neon",   r: "rare",   t: "Фон профиля «Неон»",           e: "🌃" },
-  { id: "bn_aurora",  kind: "banner", v: "aurora", r: "epic",   t: "Фон профиля «Северное сияние»", e: "🌌" },
-  { id: "bn_gold",    kind: "banner", v: "gold",   r: "legend", t: "Фон профиля «Золото»",          e: "🏆" },
+  { id: "bn_neon",    kind: "banner", v: "neon",   r: "rare",   t: "Фон «Неон»",            e: "🌃" },
+  { id: "bn_aurora",  kind: "banner", v: "aurora", r: "epic",   t: "Фон «Северное сияние»", e: "🌌" },
+  { id: "bn_gold",    kind: "banner", v: "gold",   r: "legend", t: "Фон «Золото»",          e: "🏆" },
+  // card skins: change how all your marks look for everyone
+  { id: "sk_pixel",   kind: "skin", v: "pixel",  r: "common", t: "Скин «Пиксель»",    e: "👾" },
+  { id: "sk_marble",  kind: "skin", v: "marble", r: "rare",   t: "Скин «Мрамор»",     e: "🪨" },
+  { id: "sk_holo",    kind: "skin", v: "holo",   r: "epic",   t: "Скин «Голограмма»", e: "🪩" },
+  { id: "sk_cosmos",  kind: "skin", v: "cosmos", r: "epic",   t: "Скин «Космос»",     e: "🪐" },
+  { id: "sk_gold",    kind: "skin", v: "gold",   r: "legend", t: "Скин «Золотая рамка»", e: "👑" },
+  // place gifts: unique numbered collectibles that belong to one person and can be given away
+  { id: "g_shell",     kind: "gift", v: "shell",     r: "common", t: "Ракушка с пляжа",        e: "🐚", c: "#FFC6A0" },
+  { id: "g_cheburek",  kind: "gift", v: "cheburek",  r: "common", t: "Чебурек с набережной",   e: "🥟", c: "#E9C97A" },
+  { id: "g_magnolia",  kind: "gift", v: "magnolia",  r: "common", t: "Магнолия",               e: "🌸", c: "#FF9EC4" },
+  { id: "g_embank",    kind: "gift", v: "embank",    r: "rare",   t: "Набережная Ялты",        e: "🌊", c: "#3A8CE6" },
+  { id: "g_cable",     kind: "gift", v: "cable",     r: "rare",   t: "Канатная дорога",        e: "🚡", c: "#2EC4B6" },
+  { id: "g_nikita",    kind: "gift", v: "nikita",    r: "rare",   t: "Никитский сад",          e: "🌺", c: "#5DBB63" },
+  { id: "g_uchansu",   kind: "gift", v: "uchansu",   r: "rare",   t: "Водопад Учан-Су",        e: "💧", c: "#5EB8FF" },
+  { id: "g_aipetri",   kind: "gift", v: "aipetri",   r: "epic",   t: "Гора Ай-Петри",          e: "⛰️", c: "#8E96A8" },
+  { id: "g_livadia",   kind: "gift", v: "livadia",   r: "epic",   t: "Ливадийский дворец",     e: "🏛️", c: "#F2F4F8" },
+  { id: "g_massandra", kind: "gift", v: "massandra", r: "epic",   t: "Массандровский дворец",  e: "🏯", c: "#C9A2FF" },
+  { id: "g_nest",      kind: "gift", v: "nest",      r: "legend", t: "Ласточкино гнездо",      e: "🏰", c: "#FFB020" },
 ];
 export const CASE_ITEM = Object.fromEntries(CASE_ITEMS.map(i => [i.id, i]));
-const CASE_W = { common: 60, rare: 28, epic: 10, legend: 2 };
-export function rollCaseItem(rand = Math.random) {
-  const pool = CASE_ITEMS.map(i => [i, CASE_W[i.r] / CASE_ITEMS.filter(x => x.r === i.r).length]);
+export const GIFTS = CASE_ITEMS.filter(i => i.kind === "gift");
+export function rollCaseItem(rand = Math.random, tier = "common") {
+  const odds = (CASE_TIERS[tier] || CASE_TIERS.common).odds;
+  const pool = CASE_ITEMS.map(i => [i, (odds[i.r] || 0) / CASE_ITEMS.filter(x => x.r === i.r).length]).filter(([, w]) => w > 0);
   const total = pool.reduce((a, [, w]) => a + w, 0);
   let r = rand() * total;
   for (const [i, w] of pool) { if ((r -= w) < 0) return i; }
-  return CASE_ITEMS[0];
+  return pool[0][0];
 }
 export const DUP_XP = { common: 15, rare: 40, epic: 90, legend: 250 };
 // A strip of items for the roulette, with the prize at a fixed slot.
 export const STRIP_LEN = 44, STRIP_WIN = 37;
-export function caseStrip(prize, rand = Math.random) {
-  return Array.from({ length: STRIP_LEN }, (_, i) => i === STRIP_WIN ? prize.id : rollCaseItem(rand).id);
+export function caseStrip(prize, rand = Math.random, tier = "common") {
+  return Array.from({ length: STRIP_LEN }, (_, i) => i === STRIP_WIN ? prize.id : rollCaseItem(rand, tier).id);
 }

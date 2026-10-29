@@ -436,6 +436,65 @@ body.peeking .mapbtns{bottom:calc(var(--dock) + var(--sab) + 130px)}
 @keyframes goldsh{50%{background-position:100% 0}}
 .hero.bn-neon,.hero.bn-aurora,.hero.bn-gold{color:#fff}
 .hero.bn-neon::after,.hero.bn-aurora::after,.hero.bn-gold::after{background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35) 100%)}
+
+/* ---------- verified, roles, telegram ---------- */
+.vcheck{width:1.05em;height:1.05em;display:inline-block;vertical-align:-.15em;margin-left:.25em;flex:none}
+.rbadge{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:7px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;margin-left:4px}
+.rbadge.own{background:linear-gradient(90deg,#FFD43B,#FF8A3D);color:#1C1500}
+.rbadge.adm{background:#2AABEE;color:#fff}
+.hero-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.hero-tags .stt{margin-top:0}
+.tglink{display:inline-flex;margin-top:6px;font-size:13px;font-weight:700;color:#2AABEE;text-decoration:none}
+.avimg{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.em.tgav{padding:0;overflow:hidden}
+.em.tgav img{width:100%;height:100%;object-fit:cover}
+.tgcard{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:color-mix(in oklab,#2AABEE 14%,var(--s1));border:1px solid color-mix(in oklab,#2AABEE 40%,var(--line));font-size:14px}
+.tgcard span:nth-child(2){flex:1}
+.lrow.banned{opacity:.6}
+.lrow .t b{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+.astats{grid-template-columns:repeat(5,minmax(0,1fr))}
+.astats .stat b{font-size:16px}
+.gbtn{flex:none;height:32px;padding:0 10px;border-radius:10px;background:var(--s2);border:1px solid var(--line);font-size:12px;font-weight:700;box-shadow:0 3px 0 var(--s3)}
+.gbtn.danger{color:var(--red)}
+.gbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--s3)}
+
+/* ---------- tiered cases ---------- */
+.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tier{display:grid;justify-items:center;gap:2px;padding:10px 4px 8px;border-radius:16px;background:var(--s1);border:2px solid var(--line);box-shadow:0 4px 0 var(--s2);transition:transform .12s}
+.tier img{width:46px;height:auto}
+.tier b{font-family:var(--f-d);font-size:16px}
+.tier span{font-size:10.5px;font-weight:800;color:var(--tc)}
+.tier.on{border-color:var(--tc);background:color-mix(in oklab,var(--tc) 14%,var(--s1));box-shadow:0 4px 0 color-mix(in oklab,var(--tc) 60%,#000)}
+.tier:active{transform:translateY(3px)}
+.casehero{background:radial-gradient(120% 120% at 30% 20%,color-mix(in oklab,var(--tc,#FFD43B) 30%,transparent),transparent 60%),var(--s1)!important}
+.citem.worn{outline:3px solid var(--acc);outline-offset:2px}
+.citem.k-gift{background:linear-gradient(180deg,color-mix(in oklab,var(--rc) 30%,var(--s2)),var(--s2))}
+.citem.k-skin .ce{filter:drop-shadow(0 0 8px var(--rc))}
+
+/* ---------- gifts ---------- */
+.gshelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.gift{position:relative;display:grid;justify-items:center;align-content:end;gap:2px;aspect-ratio:3/4;max-width:100%;padding:12px 8px 10px;border-radius:20px;background-size:cover;background-position:center;overflow:hidden;border:2px solid color-mix(in oklab,var(--rc) 70%,transparent);box-shadow:0 5px 0 color-mix(in oklab,var(--rc) 40%,#000),0 14px 24px -14px var(--rc);color:#fff;text-align:center}
+.gift::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.65));z-index:0}
+.gift > *{position:relative;z-index:1}
+.gift .ge{position:absolute;top:22%;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.45));animation:float 3.4s ease-in-out infinite}
+.gift .gnum{position:absolute;top:8px;right:9px;font-size:11px;font-weight:700;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px}
+.gift b{font-family:var(--f-d);font-size:12.5px;line-height:1.15;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.gift small{font-size:10px;font-weight:700;opacity:.85}
+.gift.r-legend::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 48%,transparent 60%);background-size:260% 100%;animation:shine 3s ease-in-out infinite;z-index:2;pointer-events:none}
+.gacts{display:grid;gap:5px;width:100%;margin-top:6px}
+.gacts .gbtn{width:100%;height:28px;font-size:11px;background:rgba(0,0,0,.45);color:#fff;border-color:rgba(255,255,255,.25);box-shadow:none}
+.gshelf.big .gift{aspect-ratio:3/4.4}
+
+/* ---------- card skins (owner's choice, everyone sees them) ---------- */
+.skin-pixel{border-radius:4px!important;box-shadow:4px 4px 0 var(--rc),8px 8px 0 color-mix(in oklab,var(--rc) 40%,transparent)!important;image-rendering:pixelated}
+.skin-pixel .ph{border-radius:0}
+.skin-marble{border:3px solid transparent!important;background:linear-gradient(var(--s1),var(--s1)) padding-box,conic-gradient(from 30deg,#f4f4f4,#bdbdbd,#fafafa,#9e9e9e,#f4f4f4) border-box!important}
+.skin-holo{border:3px solid transparent!important;background:linear-gradient(var(--s1),var(--s1)) padding-box,linear-gradient(90deg,#ff0080,#ffd000,#00ffaa,#0090ff,#c000ff,#ff0080) border-box!important;background-size:100% 100%,300% 100%!important;animation:holo 4s linear infinite}
+@keyframes holo{to{background-position:0 0,300% 0}}
+.skin-cosmos{border:3px solid #2a2f6a!important;box-shadow:0 0 0 2px #6E7BFF,0 0 24px -4px #6E7BFF!important}
+.skin-cosmos .lab,.skin-cosmos .body{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.5) 0 1px,transparent 1.5px),radial-gradient(circle at 70% 60%,rgba(255,255,255,.5) 0 1px,transparent 1.5px),radial-gradient(circle at 40% 80%,rgba(255,255,255,.4) 0 1px,transparent 1.5px),linear-gradient(180deg,#14163a,#0b0c22);background-size:60px 60px,80px 80px,50px 50px,100% 100%;color:#fff}
+.skin-gold{border:4px solid transparent!important;background:linear-gradient(var(--s1),var(--s1)) padding-box,linear-gradient(120deg,#5a3c00,#d9a400 30%,#fff1b0 45%,#d9a400 60%,#5a3c00) border-box!important;background-size:100% 100%,260% 100%!important;animation:goldsh2 4s ease-in-out infinite;box-shadow:0 0 24px -6px #FFB020!important}
+@keyframes goldsh2{50%{background-position:0 0,100% 0}}
 </style></head><body>
 <div class="app"><div id="view" style="display:contents"></div></div>
 <nav class="dock" aria-label="Разделы">
@@ -680,39 +739,67 @@ function makePattern(rarity, emoji, tone, rand = Math.random) {
 }
 
 /* ---------- cases ---------- */
-// kind: xp | avatar | status | banner. Duplicates of owned items turn into XP.
+// Case tiers: the rarer the case, the better the odds.
+const CASE_TIERS = {
+  common: { t: "Обычный кейс",      c: "#9AA4B8", odds: { common: 60, rare: 28, epic: 10, legend: 2 } },
+  rare:   { t: "Редкий кейс",       c: "#4D8BFF", odds: { common: 30, rare: 45, epic: 20, legend: 5 } },
+  epic:   { t: "Эпический кейс",    c: "#A66BFF", odds: { common: 8,  rare: 40, epic: 40, legend: 12 } },
+  legend: { t: "Легендарный кейс",  c: "#FFB020", odds: { common: 0,  rare: 25, epic: 50, legend: 25 } },
+};
+const TIER_IDS = Object.keys(CASE_TIERS);
+
+// kind: xp | avatar | status | banner | skin | gift. Duplicates of owned cosmetics turn into XP; gifts are always new numbered copies.
 const CASE_ITEMS = [
   { id: "xp25",   kind: "xp",     v: 25,  r: "common", t: "+25 XP",            e: "✨" },
   { id: "xp60",   kind: "xp",     v: 60,  r: "rare",   t: "+60 XP",            e: "💫" },
   { id: "xp150",  kind: "xp",     v: 150, r: "epic",   t: "+150 XP",           e: "🌟" },
+  { id: "av_wolf",    kind: "avatar", v: "🐺", r: "common", t: "Аватар «Волк»",     e: "🐺" },
   { id: "av_peacock", kind: "avatar", v: "🦚", r: "rare",   t: "Аватар «Павлин»",   e: "🦚" },
   { id: "av_jelly",   kind: "avatar", v: "🪼", r: "rare",   t: "Аватар «Медуза»",   e: "🪼" },
   { id: "av_shark",   kind: "avatar", v: "🦈", r: "rare",   t: "Аватар «Акула»",    e: "🦈" },
-  { id: "av_wolf",    kind: "avatar", v: "🐺", r: "common", t: "Аватар «Волк»",     e: "🐺" },
   { id: "av_dragon",  kind: "avatar", v: "🐉", r: "epic",   t: "Аватар «Дракон»",   e: "🐉" },
   { id: "av_eagle",   kind: "avatar", v: "🦅", r: "epic",   t: "Аватар «Орёл»",     e: "🦅" },
   { id: "av_fairy",   kind: "avatar", v: "🧚", r: "legend", t: "Аватар «Фея»",      e: "🧚" },
   { id: "st_clover",  kind: "status", v: "🍀", r: "rare",   t: "Статус «Клевер»",   e: "🍀" },
   { id: "st_rainbow", kind: "status", v: "🌈", r: "epic",   t: "Статус «Радуга»",   e: "🌈" },
   { id: "st_gem",     kind: "status", v: "💠", r: "legend", t: "Статус «Бриллиант»", e: "💠" },
-  { id: "bn_neon",    kind: "banner", v: "neon",   r: "rare",   t: "Фон профиля «Неон»",           e: "🌃" },
-  { id: "bn_aurora",  kind: "banner", v: "aurora", r: "epic",   t: "Фон профиля «Северное сияние»", e: "🌌" },
-  { id: "bn_gold",    kind: "banner", v: "gold",   r: "legend", t: "Фон профиля «Золото»",          e: "🏆" },
+  { id: "bn_neon",    kind: "banner", v: "neon",   r: "rare",   t: "Фон «Неон»",            e: "🌃" },
+  { id: "bn_aurora",  kind: "banner", v: "aurora", r: "epic",   t: "Фон «Северное сияние»", e: "🌌" },
+  { id: "bn_gold",    kind: "banner", v: "gold",   r: "legend", t: "Фон «Золото»",          e: "🏆" },
+  // card skins: change how all your marks look for everyone
+  { id: "sk_pixel",   kind: "skin", v: "pixel",  r: "common", t: "Скин «Пиксель»",    e: "👾" },
+  { id: "sk_marble",  kind: "skin", v: "marble", r: "rare",   t: "Скин «Мрамор»",     e: "🪨" },
+  { id: "sk_holo",    kind: "skin", v: "holo",   r: "epic",   t: "Скин «Голограмма»", e: "🪩" },
+  { id: "sk_cosmos",  kind: "skin", v: "cosmos", r: "epic",   t: "Скин «Космос»",     e: "🪐" },
+  { id: "sk_gold",    kind: "skin", v: "gold",   r: "legend", t: "Скин «Золотая рамка»", e: "👑" },
+  // place gifts: unique numbered collectibles that belong to one person and can be given away
+  { id: "g_shell",     kind: "gift", v: "shell",     r: "common", t: "Ракушка с пляжа",        e: "🐚", c: "#FFC6A0" },
+  { id: "g_cheburek",  kind: "gift", v: "cheburek",  r: "common", t: "Чебурек с набережной",   e: "🥟", c: "#E9C97A" },
+  { id: "g_magnolia",  kind: "gift", v: "magnolia",  r: "common", t: "Магнолия",               e: "🌸", c: "#FF9EC4" },
+  { id: "g_embank",    kind: "gift", v: "embank",    r: "rare",   t: "Набережная Ялты",        e: "🌊", c: "#3A8CE6" },
+  { id: "g_cable",     kind: "gift", v: "cable",     r: "rare",   t: "Канатная дорога",        e: "🚡", c: "#2EC4B6" },
+  { id: "g_nikita",    kind: "gift", v: "nikita",    r: "rare",   t: "Никитский сад",          e: "🌺", c: "#5DBB63" },
+  { id: "g_uchansu",   kind: "gift", v: "uchansu",   r: "rare",   t: "Водопад Учан-Су",        e: "💧", c: "#5EB8FF" },
+  { id: "g_aipetri",   kind: "gift", v: "aipetri",   r: "epic",   t: "Гора Ай-Петри",          e: "⛰️", c: "#8E96A8" },
+  { id: "g_livadia",   kind: "gift", v: "livadia",   r: "epic",   t: "Ливадийский дворец",     e: "🏛️", c: "#F2F4F8" },
+  { id: "g_massandra", kind: "gift", v: "massandra", r: "epic",   t: "Массандровский дворец",  e: "🏯", c: "#C9A2FF" },
+  { id: "g_nest",      kind: "gift", v: "nest",      r: "legend", t: "Ласточкино гнездо",      e: "🏰", c: "#FFB020" },
 ];
 const CASE_ITEM = Object.fromEntries(CASE_ITEMS.map(i => [i.id, i]));
-const CASE_W = { common: 60, rare: 28, epic: 10, legend: 2 };
-function rollCaseItem(rand = Math.random) {
-  const pool = CASE_ITEMS.map(i => [i, CASE_W[i.r] / CASE_ITEMS.filter(x => x.r === i.r).length]);
+const GIFTS = CASE_ITEMS.filter(i => i.kind === "gift");
+function rollCaseItem(rand = Math.random, tier = "common") {
+  const odds = (CASE_TIERS[tier] || CASE_TIERS.common).odds;
+  const pool = CASE_ITEMS.map(i => [i, (odds[i.r] || 0) / CASE_ITEMS.filter(x => x.r === i.r).length]).filter(([, w]) => w > 0);
   const total = pool.reduce((a, [, w]) => a + w, 0);
   let r = rand() * total;
   for (const [i, w] of pool) { if ((r -= w) < 0) return i; }
-  return CASE_ITEMS[0];
+  return pool[0][0];
 }
 const DUP_XP = { common: 15, rare: 40, epic: 90, legend: 250 };
 // A strip of items for the roulette, with the prize at a fixed slot.
 const STRIP_LEN = 44, STRIP_WIN = 37;
-function caseStrip(prize, rand = Math.random) {
-  return Array.from({ length: STRIP_LEN }, (_, i) => i === STRIP_WIN ? prize.id : rollCaseItem(rand).id);
+function caseStrip(prize, rand = Math.random, tier = "common") {
+  return Array.from({ length: STRIP_LEN }, (_, i) => i === STRIP_WIN ? prize.id : rollCaseItem(rand, tier).id);
 }
 
 /* ================= voxel engine =================
@@ -788,8 +875,8 @@ const VOX = (() => {
     for (let z = 0; z < 7; z++) { const r = z < 3 ? z : 6 - z; for (let x = -r; x <= r; x++) for (let y = -r; y <= r; y++) if (Math.abs(x) + Math.abs(y) <= r) v.push([x + 3, y + 3, z, (x + y + z) % 3 === 0 ? shadeHex(color, 1.25) : color]); }
     return v;
   }
-  function crate() {
-    const v = [], Y = "#FFD43B", D = "#1E2230";
+  function crate(Y = "#FFD43B", D = "#1E2230") {
+    const v = [];
     for (let x = 0; x < 6; x++) for (let y = 0; y < 6; y++) for (let z = 0; z < 6; z++) {
       const edgeCount = (x === 0 || x === 5) + (y === 0 || y === 5) + (z === 0 || z === 5);
       if (edgeCount === 0) continue;
@@ -958,6 +1045,7 @@ const VA = {
   pin: (c = "#FFD43B") => VOX.cached("pin" + c, () => VOX.url(VOX.pin(c), 3, 2)),
   crystal: c => VOX.cached("cr" + c, () => VOX.url(VOX.crystal(c), 5, 4)),
   crate: () => VOX.cached("crate", () => VOX.url(VOX.crate(), 9, 4)),
+  crateTier: t => VOX.cached("crate-" + t, () => VOX.url(VOX.crate({ common: "#C9D1DE", rare: "#4D8BFF", epic: "#A66BFF", legend: "#FFB020" }[t] || "#FFD43B", t === "legend" ? "#3A2600" : "#1E2230"), 9, 4)),
   diorama: () => VOX.cached("dio", () => VOX.layers(Object.values(VOX.diorama()), 9)),
 };
 const vpin = (cls = "vpin") => `<img class="${cls}" src="${VA.pin()}" alt="">`;
@@ -968,7 +1056,12 @@ function dioramaHTML(inner, cls = "") {
 const crateImg = () => `<img class="crate" src="${VA.crate()}" alt="">`;
 document.addEventListener("error", e => { const t = e.target; if (t?.tagName === "IMG" && t.dataset.fb) t.remove(); }, true);
 const cvars = id => { const c = COLOR[id] || COLORS[0]; return `--ca:${c.a};--cb:${c.b}`; };
-const avatar = (u, sz = 40, st = true) => `<span class="av" style="--sz:${sz}px;${cvars(u?.color)}">${esc(u?.avatar || "🦊")}${st && u?.status ? `<span class="st">${esc(u.status)}</span>` : ""}</span>`;
+const CHECK = `<svg class="vcheck" viewBox="0 0 24 24" role="img" aria-label="Подтверждённый аккаунт"><path fill="#2AABEE" d="M12 1.2l2.5 2.1 3.3-.4.9 3.2 2.9 1.6-1.1 3.1 1.1 3.1-2.9 1.6-.9 3.2-3.3-.4L12 22.8l-2.5-2.1-3.3.4-.9-3.2-2.9-1.6L3.5 13 2.4 9.9l2.9-1.6.9-3.2 3.3.4z"/><path d="M7.6 12.2l2.9 2.9 5.9-6.1" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const nm = u => `${esc(u?.nick || "")}${u?.verified ? CHECK : ""}`;
+const roleBadge = u => u?.role === "owner" ? `<span class="rbadge own">Владелец</span>` : u?.role === "admin" ? `<span class="rbadge adm">Админ</span>` : "";
+const isAdminMe = () => S.me?.role === "admin" || S.me?.role === "owner";
+const avInner = u => u?.avatar === "tg" && u?.tgPhoto ? `<img class="avimg" src="${esc(u.tgPhoto)}" alt="" referrerpolicy="no-referrer">` : esc(u?.avatar === "tg" ? "🦊" : (u?.avatar || "🦊"));
+const avatar = (u, sz = 40, st = true) => `<span class="av" style="--sz:${sz}px;${cvars(u?.color)}">${avInner(u)}${st && u?.status ? `<span class="st">${esc(u.status)}</span>` : ""}</span>`;
 const fmtDist = m => m == null ? "" : m < 1000 ? `${Math.round(m / 10) * 10} м` : `${(m / 1000).toFixed(m < 10000 ? 1 : 0).replace(".", ",")} км`;
 const fmtDate = ms => new Date(ms).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
 const ago = ms => { const s = (Date.now() - ms) / 1000; if (s < 60) return "только что"; if (s < 3600) return `${Math.floor(s / 60)} мин назад`; if (s < 86400) return `${Math.floor(s / 3600)} ч назад`; return `${Math.floor(s / 86400)} дн назад`; };
@@ -1066,7 +1159,7 @@ async function api(path, opts = {}) {
 
 /* ---------- demo backend (preview outside Telegram) ---------- */
 const MOCK = (() => {
-  const KEY = "metka-demo-v2";
+  const KEY = "metka-demo-v3";
   const now = Date.now(), H1 = 3600e3;
   const people = [
     { id: 2, nick: "Лиса Ялты", avatar: "🦊", color: "sun", status: "🐾", xp: 1460, streak: 6, best_streak: 9, bio: "Коллекционирую котов набережной" },
@@ -1089,12 +1182,12 @@ const MOCK = (() => {
   ];
   function fresh() {
     return {
-      me: { id: 1, nick: "", avatar: "🦄", color: "grape", status: "🌱", bio: "", xp: 0, streak: 0, best_streak: 0, last_day: null },
+      me: { id: 1, nick: "", avatar: "🦄", color: "grape", status: "🌱", bio: "", xp: 0, streak: 0, best_streak: 0, last_day: null, role: "owner", verified: true, username: "yoy" },
       users: Object.fromEntries(people.map(p => [p.id, p])),
       marks: seed.map((s, i) => ({ code: s[0], owner: s[1], name: s[2], emoji: s[3], cat: s[4], rarity: s[5], lat: s[6], lon: s[7], place: s[8], story: s[9], num: i + 1, at: now - (i * 5 + 2) * H1, photo: null })),
       reactions: { BRSK7: { 2: "❤️", 3: "🔥", 4: "😹", 5: "❤️" }, PLTN9: { 2: "👑", 3: "🤯", 5: "👑" }, SUNST: { 2: "❤️", 6: "🔥" }, CHG42: { 2: "😹" } },
       collects: { BRSK7: { 3: now - 20 * H1, 5: now - 9 * H1 }, PLTN9: { 2: now - 30 * H1 }, CHG42: { 2: now - 6 * H1 } },
-      xplog: [], claims: {}, cases: { count: 1, last_daily: null }, items: [],
+      xplog: [], claims: {}, cases: { last_daily: null }, inv: { common: 1, rare: 1, epic: 0, legend: 1 }, items: [], gifts: [], serials: {}, log: [],
     };
   }
   let D;
@@ -1102,14 +1195,17 @@ const MOCK = (() => {
   if (!D) D = fresh();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {} };
   const user = id => id === 1 ? D.me : D.users[id];
-  const pub = u => ({ id: u.id, nick: u.nick || "Ты", avatar: u.avatar, color: u.color, status: u.status, bio: u.bio || "", banner: u.banner || "", xp: u.xp, level: level(u.xp), streak: u.streak, onboarded: !!u.nick });
+  const pub = u => ({ id: u.id, nick: u.nick || "Ты", avatar: u.avatar, color: u.color, status: u.status, bio: u.bio || "", banner: u.banner || "", skin: u.skin || "", role: u.role || "", verified: !!u.verified, banned: !!u.banned, username: u.username || "", tgPhoto: u.tgPhoto || "", xp: u.xp, level: level(u.xp), streak: u.streak, onboarded: !!u.nick });
   const shape = m => {
     const o = user(m.owner);
     return { ...m, reacts: Object.keys(D.reactions[m.code] || {}).length, collects: Object.keys(D.collects[m.code] || {}).length,
-      owner: { id: o.id, nick: o.nick || "Ты", avatar: o.avatar, color: o.color, status: o.status, level: level(o.xp) } };
+      owner: { id: o.id, nick: o.nick || "Ты", avatar: o.avatar, color: o.color, status: o.status, level: level(o.xp), verified: !!o.verified, skin: o.skin || "" } };
   };
-  const addXp = (id, n, reason) => { const before = user(id).xp; user(id).xp += n; D.xplog.push({ id, n, at: Date.now(), reason }); const ups = level(before + n) - level(before); if (id === 1 && ups > 0) { D.cases = D.cases || { count: 0 }; D.cases.count += ups; } return ups; };
-  const caseState = () => { D.cases = D.cases || { count: 0, last_daily: null }; D.items = D.items || []; return { count: D.cases.count, dailyReady: D.cases.last_daily !== dayKey() }; };
+  const addXp = (id, n, reason) => { const before = user(id).xp; user(id).xp += n; D.xplog.push({ id, n, at: Date.now(), reason }); const ups = level(before + n) - level(before); if (id === 1 && ups > 0) { caseState(); D.inv.common += ups; } return ups; };
+  const caseState = () => { D.cases = D.cases || { last_daily: null }; D.items = D.items || []; D.inv = D.inv || { common: 0, rare: 0, epic: 0, legend: 0 }; D.gifts = D.gifts || []; D.serials = D.serials || {}; D.log = D.log || [];
+    return { tiers: { ...D.inv }, count: Object.values(D.inv).reduce((a, b) => a + b, 0), dailyReady: D.cases.last_daily !== dayKey() }; };
+  const giveGift = (owner, item, from = null) => { D.serials[item] = (D.serials[item] || 0) + 1; const g = { id: Date.now() + Math.random(), item, serial: D.serials[item], owner, from, pinned: false, at: Date.now() }; D.gifts.push(g); return g; };
+  const giftsOf = (id, pinnedOnly) => D.gifts.filter(g => g.owner === id && (!pinnedOnly || g.pinned)).sort((a, b) => b.pinned - a.pinned || b.at - a.at).map(g => ({ ...g, from: g.from ? (user(g.from)?.nick || "Ты") : null }));
   const touch = () => { const t = dayKey(), y = dayKey(Date.now() - 86400e3); if (D.me.last_day === t) return; D.me.streak = D.me.last_day === y ? D.me.streak + 1 : 1; D.me.best_streak = Math.max(D.me.best_streak, D.me.streak); D.me.last_day = t; };
   function stats(id) {
     const own = D.marks.filter(m => m.owner === id), cats = {}, rar = {};
@@ -1139,15 +1235,39 @@ const MOCK = (() => {
   async function handle(path, { method = "GET", body } = {}) {
     await wait(120 + Math.random() * 160);
     const u = new URL(path, "https://x"), p = u.pathname, q = u.searchParams;
-    if (p === "/api/me" && method === "GET") { const s = stats(1), cs = caseState(); return { user: pub(D.me), stats: s, statuses: [...unlockedStatuses(s), ...D.items.map(id => CASE_ITEM[id]).filter(i => i.kind === "status").map(i => i.v)], items: D.items, cases: cs, quest: quest() }; }
-    if (p === "/api/cases/daily") { const cs = caseState(); if (!cs.dailyReady) err("already_claimed"); D.cases.count++; D.cases.last_daily = dayKey(); save(); return { cases: caseState() }; }
+    if (p === "/api/me" && method === "GET") { const s = stats(1), cs = caseState(); D.me.role = "owner"; D.me.verified = true; return { user: pub(D.me), stats: s, statuses: [...unlockedStatuses(s), ...D.items.map(id => CASE_ITEM[id]).filter(i => i.kind === "status").map(i => i.v)], items: D.items, cases: cs, quest: quest() }; }
+    if (p === "/api/cases/daily") { const cs = caseState(); if (!cs.dailyReady) err("already_claimed"); D.inv.common++; D.cases.last_daily = dayKey(); save(); return { cases: caseState() }; }
     if (p === "/api/cases/open") {
-      caseState(); if (D.cases.count < 1) err("no_cases"); D.cases.count--;
-      const prize = rollCaseItem(), dup = prize.kind !== "xp" && D.items.includes(prize.id);
+      caseState(); const tier = CASE_TIERS[body?.tier] ? body.tier : "common"; if (D.inv[tier] < 1) err("no_cases"); D.inv[tier]--;
+      const prize = rollCaseItem(Math.random, tier), dup = !["xp", "gift"].includes(prize.kind) && D.items.includes(prize.id);
       const xp = prize.kind === "xp" ? prize.v : dup ? DUP_XP[prize.r] : 0;
-      if (prize.kind !== "xp" && !dup) D.items.push(prize.id);
+      let gift = null;
+      if (prize.kind === "gift") gift = giveGift(1, prize.id); else if (prize.kind !== "xp" && !dup) D.items.push(prize.id);
       const levelUps = addXp(1, xp, "case"); save();
-      return { prize: prize.id, strip: caseStrip(prize), win: STRIP_WIN, duplicate: dup, xp, levelUps, cases: caseState() };
+      return { prize: prize.id, gift, strip: caseStrip(prize, Math.random, tier), win: STRIP_WIN, duplicate: dup, xp, levelUps, cases: caseState() };
+    }
+    if (p === "/api/cases/send") { caseState(); const tier = body.tier; if (!D.inv[tier]) err("no_cases"); D.inv[tier]--; save(); return { cases: caseState(), to: pub(user(+body.to)) }; }
+    if (p === "/api/gifts") { caseState(); return { gifts: giftsOf(1) }; }
+    const gm = p.match(/^\/api\/gifts\/([\d.]+)\/(pin|send)$/);
+    if (gm) { caseState(); const g = D.gifts.find(x => String(x.id) === gm[1] && x.owner === 1); if (!g) err("not_found");
+      if (gm[2] === "pin") g.pinned = !!body.pinned; else { g.owner = +body.to; g.from = 1; g.pinned = !!(Math.random() < .5); }
+      save(); return { gifts: giftsOf(1) }; }
+    if (p === "/api/users/find") { const q2 = (q.get("q") || "").toLowerCase().replace("@", ""); return { users: Object.values(D.users).filter(u => !u.banned && (u.nick.toLowerCase().includes(q2) || String(u.id) === q2)).map(pub) }; }
+    if (p.startsWith("/api/admin/")) {
+      caseState();
+      if (p === "/api/admin/stats") return { users: Object.keys(D.users).length + 1, marks: D.marks.length, today: D.marks.filter(m => m.at > Date.now() - 864e5).length, banned: Object.values(D.users).filter(u => u.banned).length, admins: Object.values(D.users).filter(u => u.role).length + 1, log: D.log.slice(-30).reverse() };
+      if (p === "/api/admin/users") { const q2 = (q.get("q") || "").toLowerCase(), f = q.get("filter"); return { users: [D.me, ...Object.values(D.users)].filter(u => (!q2 || (u.nick || "").toLowerCase().includes(q2) || String(u.id) === q2) && (f !== "banned" || u.banned) && (f !== "admins" || u.role)).map(u => ({ ...pub(u), marks: D.marks.filter(m => m.owner === u.id).length })) }; }
+      const am = p.match(/^\/api\/admin\/users\/(\d+)$/);
+      if (am) { const u = user(+am[1]); if (!u) err("user_not_found"); if (u.role === "owner") err("owner_protected");
+        if (typeof body.banned === "boolean") u.banned = body.banned; if (typeof body.verified === "boolean") u.verified = body.verified; if (typeof body.admin === "boolean") u.role = body.admin ? "admin" : "";
+        D.log.push({ admin: D.me.nick, action: Object.keys(body)[0] === "banned" ? (body.banned ? "ban" : "unban") : Object.keys(body)[0] === "verified" ? (body.verified ? "verify" : "unverify") : (body.admin ? "make_admin" : "remove_admin"), target: u.nick, at: Date.now() }); save(); return { user: pub(u) }; }
+      if (p === "/api/admin/marks") return { marks: D.marks.map(shape) };
+      if (p === "/api/admin/grant") { const to = String(body.to).replace("@", ""); const u = /^\d+$/.test(to) ? user(+to) : [D.me, ...Object.values(D.users)].find(x => x.username === to); if (!u) err("user_not_found");
+        let label = ""; const n = Math.max(1, +body.n || 1);
+        if (body.kind === "case") { if (u.id === 1) D.inv[body.tier] += n; label = `${CASE_TIERS[body.tier].t} ×${n}`; }
+        else if (body.kind === "item") { const it = CASE_ITEM[body.item]; if (it.kind === "gift") { const ser = []; for (let i = 0; i < n; i++) ser.push(giveGift(u.id, it.id, 1).serial); label = `${it.e} ${it.t} #${ser.join(", #")}`; } else { if (u.id === 1 && !D.items.includes(it.id)) D.items.push(it.id); label = `${it.e} ${it.t}`; } }
+        else { addXp(u.id, n, "admin"); label = `${n} XP`; }
+        D.log.push({ admin: D.me.nick, action: "grant", target: `${u.nick || "Ты"}: ${label}`, at: Date.now() }); save(); return { ok: true, label, to: pub(u) }; }
     }
     if (p === "/api/me" && method === "POST") {
       const s = stats(1);
@@ -1158,6 +1278,7 @@ const MOCK = (() => {
       if (unlockedStatuses(s).includes(body.status) || own("status").includes(body.status)) D.me.status = body.status;
       if (own("avatar").includes(body.avatar)) D.me.avatar = body.avatar;
       if (body.banner === "" || own("banner").includes(body.banner)) D.me.banner = body.banner || "";
+      if (body.skin === "" || own("skin").includes(body.skin)) D.me.skin = body.skin || "";
       D.me.bio = String(body.bio || "").slice(0, 120); save(); return { user: pub(D.me) };
     }
     if (p === "/api/feed") {
@@ -1193,7 +1314,7 @@ const MOCK = (() => {
         return { mark: shape(m), reactions: rx, myReaction: (D.reactions[m.code] || {})[1] || null, collected: !!col[1], mine: m.owner === 1,
           collectors: Object.keys(col).sort((a, b) => col[b] - col[a]).slice(0, 8).map(id => { const x = user(+id); return { id: x.id, nick: x.nick || "Ты", avatar: x.avatar, color: x.color }; }) };
       }
-      if (!mm[2] && method === "DELETE") { if (m.owner !== 1) err("forbidden"); D.marks = D.marks.filter(x => x !== m); save(); return { ok: true }; }
+      if (!mm[2] && method === "DELETE") { D.marks = D.marks.filter(x => x !== m); save(); return { ok: true }; }
       if (mm[2] === "react") {
         D.reactions[m.code] = D.reactions[m.code] || {};
         const cur = D.reactions[m.code][1];
@@ -1218,7 +1339,7 @@ const MOCK = (() => {
     const um = p.match(/^\/api\/users\/(\d+)$/);
     if (um) {
       const id = +um[1], x = user(id); if (!x) err("not_found");
-      return { user: pub(x), stats: stats(id), marks: D.marks.filter(m => m.owner === id).sort((a, b) => b.at - a.at).map(shape),
+      caseState(); return { user: pub(x), stats: stats(id), gifts: giftsOf(id, id !== 1), giftCount: D.gifts.filter(g => g.owner === id).length, marks: D.marks.filter(m => m.owner === id).sort((a, b) => b.at - a.at).map(shape),
         collected: D.marks.filter(m => (D.collects[m.code] || {})[id]).map(shape) };
     }
     if (p === "/api/top") {
@@ -1294,10 +1415,10 @@ document.addEventListener("click", e => { if (e.target.closest("[data-cases]")) 
 
 /* ================= feed ================= */
 function tile(m) {
-  return `<button class="tile r-${m.rarity}" data-open="${esc(m.code)}">
+  return `<button class="tile r-${m.rarity} ${m.owner?.skin ? "skin-" + esc(m.owner.skin) : ""}" data-open="${esc(m.code)}">
     <div class="ph">${art(m)}<span class="chipe">${esc(m.emoji)}</span><span class="gem">${RARITY[m.rarity]?.t || ""}</span>${m.dist != null ? `<span class="dist">${fmtDist(m.dist)}</span>` : ""}</div>
     <div class="lab"><div class="nm">${esc(m.name)}</div>
-      <div class="row2">${avatar(m.owner, 20, false)}<span class="who">${esc(m.owner.nick)}</span>${m.reacts ? `<span>❤️ ${m.reacts}</span>` : ""}</div></div></button>`;
+      <div class="row2">${avatar(m.owner, 20, false)}<span class="who">${nm(m.owner)}</span>${m.reacts ? `<span>❤️ ${m.reacts}</span>` : ""}</div></div></button>`;
 }
 document.addEventListener("click", e => { const t = e.target.closest("[data-open]"); if (t) openMark(t.dataset.open); });
 function questCard() {
@@ -1452,8 +1573,8 @@ async function renderTop() {
     const { rows } = await api("/api/top?period=" + S.topPeriod);
     const el = $("#lb"); if (!el) return;
     if (!rows.length) { el.innerHTML = `<div class="empty"><div class="big">🏆</div><h3>Топ пока пуст</h3><p>Ставь и собирай метки, и ты окажешься здесь первым.</p></div>`; return; }
-    const pod = [rows[1], rows[0], rows[2]].map((u, i) => u ? `<button class="pod p${[2, 1, 3][i]}" data-user="${u.id}">${avatar(u, [58, 76, 58][i])}<b>${esc(u.nick)}</b><small>${u.score} XP</small><div class="ped">${[2, 1, 3][i]}</div></button>` : "<span></span>").join("");
-    el.innerHTML = `<div class="podium">${pod}</div><div class="lb" style="margin-top:16px">${rows.slice(3).map(u => `<button class="lrow ${u.id === S.me.id ? "me" : ""}" data-user="${u.id}"><span class="rk">${u.rank}</span>${avatar(u, 40)}<span class="t"><b>${esc(u.nick)}</b><span>Ур. ${u.level} · ${esc(u.status)}</span></span><span class="sc">${u.score}</span></button>`).join("")}</div>
+    const pod = [rows[1], rows[0], rows[2]].map((u, i) => u ? `<button class="pod p${[2, 1, 3][i]}" data-user="${u.id}">${avatar(u, [58, 76, 58][i])}<b>${nm(u)}</b><small>${u.score} XP</small><div class="ped">${[2, 1, 3][i]}</div></button>` : "<span></span>").join("");
+    el.innerHTML = `<div class="podium">${pod}</div><div class="lb" style="margin-top:16px">${rows.slice(3).map(u => `<button class="lrow ${u.id === S.me.id ? "me" : ""}" data-user="${u.id}"><span class="rk">${u.rank}</span>${avatar(u, 40)}<span class="t"><b>${nm(u)}</b><span>Ур. ${u.level} · ${esc(u.status)}</span></span><span class="sc">${u.score}</span></button>`).join("")}</div>
       ${rows.some(u => u.id === S.me.id) ? "" : `<p class="hint" style="text-align:center">Тебя пока нет в топе. Поставь пару меток, и ты здесь появишься.</p>`}`;
   } catch { $("#lb").innerHTML = `<div class="empty"><div class="big">📡</div><h3>Нет связи</h3></div>`; }
 }
@@ -1468,12 +1589,13 @@ function profileHTML(d, isMe) {
   return `<section class="hero ${u.banner ? "bn-" + esc(u.banner) : ""}" style="${cvars(u.color)}"><img class="hcr a" data-depth="0.18" src="${VA.crystal(cc)}" alt=""><img class="hcr b" data-depth="0.34" src="${VA.crystal(RCOL.legend)}" alt="">
     <div class="hero-row">
       <div class="ring"><svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--s3)" stroke-width="5"/><circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L * (1 - pct)}"/></svg>${avatar(u, 78, false)}<span class="lvl">Ур. ${lv}</span></div>
-      <div style="min-width:0"><h2>${esc(u.nick)}</h2><span class="stt">${esc(u.status)} ${esc(st?.t || "")}</span></div>
+      <div style="min-width:0"><h2>${nm(u)}</h2><div class="hero-tags"><span class="stt">${esc(u.status)} ${esc(st?.t || CASE_ITEMS.find(i => i.kind === "status" && i.v === u.status)?.t.replace("Статус ", "") || "")}</span>${roleBadge(u)}</div>${u.username ? `<a class="tglink" href="https://t.me/${esc(u.username)}" target="_blank" rel="noopener">✈️ @${esc(u.username)}</a>` : ""}</div>
     </div>
     ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
     <div class="xpline"><div style="display:flex;justify-content:space-between"><span>Опыт</span><span class="mono">${u.xp} / ${c} XP</span></div><div class="t"><i style="width:${pct * 100}%"></i></div></div>
-    ${isMe ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn dark" id="editP">Изменить</button><button class="btn soft" id="pickS">Статусы ${S.statuses.length}</button></div><button class="btn pri w" data-cases>🎁 Кейсы и инвентарь${S.cases.count ? ` · ${S.cases.count}` : ""}</button>` : ""}
+    ${isMe ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn dark" id="editP">Изменить</button><button class="btn soft" id="pickS">Статусы ${S.statuses.length}</button></div><button class="btn pri w" data-cases>🎁 Кейсы, подарки и инвентарь${S.cases.count ? ` · ${S.cases.count}` : ""}</button>${isAdminMe() ? `<button class="btn dark w" id="adminP">🛡 Админ-панель</button>` : ""}` : isAdminMe() && u.role !== "owner" ? `<button class="btn dark w" id="modP">🛡 Модерация пользователя</button>` : ""}
   </section>
+  ${(d.gifts || []).filter(g => g.pinned).length ? `<h3 class="sec">Подарки · ${d.giftCount ?? d.gifts.length}</h3><div class="gshelf">${d.gifts.filter(g => g.pinned).map(g => giftCard(g)).join("")}</div>` : ""}
   <div class="stats">
     <div class="stat"><b>${s.created}</b><span>меток</span></div>
     <div class="stat"><b>${s.collected}</b><span>собрано</span></div>
@@ -1497,6 +1619,8 @@ function bindProfile(root, d, isMe) {
   $$("[data-ptab]", root).forEach(b => b.addEventListener("click", () => { H.pick(); show(b.dataset.ptab); }));
   show("marks");
   if (isMe) { $("#editP", root)?.addEventListener("click", () => openEditProfile()); $("#pickS", root)?.addEventListener("click", () => openStatuses()); }
+  $("#adminP", root)?.addEventListener("click", () => openAdmin());
+  $("#modP", root)?.addEventListener("click", () => openModeration(d.user, () => openProfile(d.user.id)));
 }
 async function renderProfile() {
   view.innerHTML = `<div class="scroll"><div class="page">${topBar()}<div id="prof"><div class="sk" style="aspect-ratio:2/1"></div></div></div></div>`;
@@ -1524,15 +1648,16 @@ function openEditProfile(onboarding = false) {
   const el = document.createElement("div"); el.className = onboarding ? "onb" : "ov";
   const body = `
     ${onboarding ? `${dioramaHTML(`<span class="logo" style="color:#fff">${vpin()}Метка</span>`, "tall")}<div><h1>Создай свой аккаунт исследователя</h1></div><p class="lead">Выбери аватар и цвет. Позже откроешь эмодзи-статусы за находки.</p>` : `<div class="grab"></div><div class="sh-h"><h2>Профиль</h2><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>`}
-    <span class="av avbig" id="avp" style="${onboarding ? "" : "justify-self:center;--sz:96px;"}${cvars(draft.color)}">${esc(draft.avatar)}</span>
+    <span class="av avbig" id="avp" style="${onboarding ? "" : "justify-self:center;--sz:96px;"}${cvars(draft.color)}">${avInner({ avatar: draft.avatar, tgPhoto: S.me.tgPhoto })}</span>
+    ${S.me.username || S.me.tgPhoto ? `<div class="tgcard">✈️ <span>Вход через Telegram${S.me.username ? ` · <b>@${esc(S.me.username)}</b>` : ""}</span><span class="ok">✓</span></div>` : ""}
     <div class="field"><label class="lbl" for="p-nick">Ник</label><input class="inp" id="p-nick" maxlength="24" placeholder="Как тебя называть" value="${esc(draft.nick)}" autocomplete="off"></div>
-    <div class="field"><span class="lbl">Аватар</span><div class="emg">${[...S.items.map(id => CASE_ITEM[id]).filter(i => i?.kind === "avatar").map(i => i.v), ...AVATARS].map(a => `<button class="em ${AVATARS.includes(a) ? "" : "excl"}" data-av="${a}" aria-pressed="${a === draft.avatar}">${a}</button>`).join("")}</div></div>
+    <div class="field"><span class="lbl">Аватар</span><div class="emg">${S.me.tgPhoto ? `<button class="em tgav" data-av="tg" aria-pressed="${draft.avatar === "tg"}" aria-label="Фото из Telegram"><img src="${esc(S.me.tgPhoto)}" alt="" referrerpolicy="no-referrer"></button>` : ""}${[...S.items.map(id => CASE_ITEM[id]).filter(i => i?.kind === "avatar").map(i => i.v), ...AVATARS].map(a => `<button class="em ${AVATARS.includes(a) ? "" : "excl"}" data-av="${a}" aria-pressed="${a === draft.avatar}">${a}</button>`).join("")}</div></div>
     <div class="field"><span class="lbl">Цвет</span><div class="swatches">${COLORS.map(c => `<button class="sw" data-col="${c.id}" aria-pressed="${c.id === draft.color}" aria-label="${c.t}" style="${cvars(c.id)}"></button>`).join("")}</div></div>
     ${onboarding ? "" : `<div class="field"><label class="lbl" for="p-bio">О себе</label><textarea class="inp" id="p-bio" maxlength="120" placeholder="Что ищешь в городе?">${esc(draft.bio)}</textarea></div>`}
     <button class="btn pri w" id="p-save">${onboarding ? "Начать охоту" : "Сохранить"}</button>`;
   el.innerHTML = onboarding ? `<div class="onb-in">${body}</div>` : `<div class="sheet" role="dialog" aria-modal="true"><div class="form">${body}</div></div>`;
   if (onboarding) document.body.appendChild(el); else pushLayer(el);
-  const sync = () => { const a = $("#avp", el); a.style.setProperty("--ca", COLOR[draft.color].a); a.style.setProperty("--cb", COLOR[draft.color].b); a.textContent = draft.avatar; };
+  const sync = () => { const a = $("#avp", el); a.style.setProperty("--ca", COLOR[draft.color].a); a.style.setProperty("--cb", COLOR[draft.color].b); a.innerHTML = avInner({ avatar: draft.avatar, tgPhoto: S.me.tgPhoto }); };
   $$("[data-av]", el).forEach(b => b.addEventListener("click", () => { H.pick(); draft.avatar = b.dataset.av; $$("[data-av]", el).forEach(x => x.setAttribute("aria-pressed", x === b)); sync(); }));
   $$("[data-col]", el).forEach(b => b.addEventListener("click", () => { H.pick(); draft.color = b.dataset.col; $$("[data-col]", el).forEach(x => x.setAttribute("aria-pressed", x === b)); sync(); }));
   el.addEventListener("click", e => { if (e.target === el && !onboarding) popLayer(el); if (e.target.closest("[data-close]")) popLayer(el); });
@@ -1541,7 +1666,7 @@ function openEditProfile(onboarding = false) {
     if (!nick) { H.err(); $("#p-nick", el).focus(); toast("Придумай ник"); return; }
     $("#p-save", el).disabled = true;
     try {
-      await api("/api/me", { method: "POST", body: { nick, avatar: draft.avatar, color: draft.color, bio: $("#p-bio", el)?.value || "", status: S.me.status, banner: S.me.banner || "" } });
+      await api("/api/me", { method: "POST", body: { nick, avatar: draft.avatar, color: draft.color, bio: $("#p-bio", el)?.value || "", status: S.me.status, banner: S.me.banner || "", skin: S.me.skin || "" } });
       await refreshMe(); H.ok();
       if (onboarding) { el.remove(); burst("rare"); chime(1); toast(`Привет, ${nick}! Держи статус 🌱`); boot2(); }
       else { popLayer(el); toast("Профиль сохранён"); renderTab(); }
@@ -1559,7 +1684,7 @@ function openStatuses() {
     if (e.target === el || e.target.closest("[data-close]")) return popLayer(el);
     const b = e.target.closest("[data-st]"); if (!b || b.disabled) return;
     H.ok();
-    try { await api("/api/me", { method: "POST", body: { ...S.me, banner: S.me.banner || "", status: b.dataset.st } }); await refreshMe(); popLayer(el); toast(`Статус ${b.dataset.st} установлен`); renderTab(); } catch { toast("Не получилось"); }
+    try { await api("/api/me", { method: "POST", body: { ...S.me, banner: S.me.banner || "", skin: S.me.skin || "", status: b.dataset.st } }); await refreshMe(); popLayer(el); toast(`Статус ${b.dataset.st} установлен`); renderTab(); } catch { toast("Не получилось"); }
   });
 }
 
@@ -1670,10 +1795,10 @@ async function openMark(code) {
     const canCollect = !d.mine && !d.collected;
     el.querySelector(".det").innerHTML = `
       <div class="det-top"><span class="lbl">Метка №${String(m.num).padStart(4, "0")}</span><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
-      <div class="stage"><article class="bigcard r-${m.rarity}" id="bc">
+      <div class="stage"><article class="bigcard r-${m.rarity} ${m.owner?.skin ? "skin-" + esc(m.owner.skin) : ""}" id="bc">
         <div class="ph">${art(m)}<span class="chipe">${esc(m.emoji)}</span><span class="gem">${RARITY[m.rarity].t}</span><span class="num mono">${m.code}</span><div class="glare"></div></div>
         <div class="body"><h1>${esc(m.name)}</h1>${m.story ? `<p class="story">${esc(m.story)}</p>` : ""}
-          <button class="owner" data-user="${m.owner.id}">${avatar(m.owner, 42)}<span class="ot"><b>${esc(m.owner.nick)}</b><span>Первооткрыватель · ур. ${m.owner.level}</span></span></button>
+          <button class="owner" data-user="${m.owner.id}">${avatar(m.owner, 42)}<span class="ot"><b>${nm(m.owner)}</b><span>Первооткрыватель · ур. ${m.owner.level}</span></span></button>
           <dl class="spec"><dt>Вид</dt><dd>${CAT[m.cat]?.e} ${CAT[m.cat]?.t}</dd><dt>Найдена</dt><dd>${fmtDate(m.at)}</dd>${m.place ? `<dt>Где</dt><dd>${esc(m.place)}</dd>` : ""}${dist != null ? `<dt>До неё</dt><dd>${fmtDist(dist)}</dd>` : ""}<dt>Собрали</dt><dd>${m.collects} ${plural(m.collects, "человек", "человека", "человек")}</dd>
           <dt>Узор</dt><dd><span class="patchip" style="background-image:url(${patternURL(patOf(m), m.code)})"></span>${PATTERNS[patOf(m).m].t}</dd>
           ${m.seen ? `<dt>ИИ увидел</dt><dd>${esc(m.seen.e)} ${esc(m.seen.ru)} · ${m.seen.conf}%</dd>` : ""}</dl>
@@ -1686,7 +1811,7 @@ async function openMark(code) {
         <button class="btn soft" id="m-send">${ICON.send}Отправить</button>
         <button class="btn soft" id="m-qr">${ICON.qr}QR-код</button>
         ${m.photo && TG?.shareToStory ? `<button class="btn soft span" id="m-story">📲 В историю</button>` : ""}
-        ${d.mine ? `<button class="btn danger span" id="m-del">Удалить метку</button>` : ""}
+        ${d.mine ? `<button class="btn danger span" id="m-del">Удалить метку</button>` : isAdminMe() ? `<button class="btn danger span" id="m-del">🛡 Удалить как админ</button>` : ""}
       </div>
       ${d.collectors.length ? `<div class="collectors"><div class="stack">${d.collectors.map(u => avatar(u, 30, false)).join("")}</div><span>Нашли: ${d.collectors.slice(0, 2).map(u => esc(u.nick)).join(", ")}${m.collects > 2 ? ` и ещё ${m.collects - 2}` : ""}</span></div>` : ""}`;
     $("[data-close]", el).onclick = () => popLayer(el);
@@ -1752,80 +1877,211 @@ function stickerPop(src, text) {
   setTimeout(() => el.classList.add("out"), 2600); setTimeout(() => el.remove(), 3100);
 }
 
-/* ================= cases ================= */
-const itemCard = (id, cls = "") => { const i = CASE_ITEM[id]; return `<div class="citem r-${i.r} ${cls}" data-item="${id}"><span class="ce">${i.e}</span><span class="ct">${esc(i.t)}</span></div>`; };
-function openCases() {
+/* ================= cases, gifts, inventory ================= */
+const TIER_CRATE = t => VA.crateTier(t);
+const itemCard = (id, cls = "", extra = "") => { const i = CASE_ITEM[id]; if (!i) return ""; return `<div class="citem r-${i.r} k-${i.kind} ${cls}" data-item="${id}"><span class="ce">${i.e}</span><span class="ct">${esc(i.t)}${extra}</span></div>`; };
+function giftCard(g, actions = false) {
+  const i = CASE_ITEM[g.item]; if (!i) return "";
+  const p = { m: i.r === "legend" || i.r === "epic" ? "stars" : i.r === "rare" ? "waves" : "confetti", e: i.e, c1: i.c, c2: RCOL[i.r], holo: i.r === "legend" };
+  return `<div class="gift r-${i.r}" style="background-image:url(${patternURL(p, "gift-" + i.id)})">
+    <span class="gnum mono">#${g.serial}</span><span class="ge">${i.e}</span><b>${esc(i.t)}</b><small>${RARITY[i.r].t}${g.from ? ` · от ${esc(g.from)}` : ""}</small>
+    ${actions ? `<div class="gacts"><button class="gbtn" data-gpin="${g.id}">${g.pinned ? "📌 В профиле" : "Показать в профиле"}</button><button class="gbtn" data-gsend="${g.id}">🎁 Подарить</button></div>` : ""}
+  </div>`;
+}
+function pickUser(title) {
+  return new Promise(resolve => {
+    const el = document.createElement("div"); el.className = "ov";
+    el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="sh-h"><h2>${esc(title)}</h2><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
+      <div class="form"><div class="field"><label class="lbl" for="pu-q">Кому</label><input class="inp" id="pu-q" placeholder="Ник, @username или ID" autocomplete="off"></div><div class="lb" id="pu-list"><p class="hint">Начни вводить имя друга.</p></div></div></div>`;
+    let done = false; const finish = v => { if (done) return; done = true; resolve(v); };
+    pushLayer(el, () => finish(null));
+    el.addEventListener("click", e => { if (e.target === el || e.target.closest("[data-close]")) popLayer(el); const b = e.target.closest("[data-pick]"); if (b) { const u = JSON.parse(b.dataset.pick); finish(u); popLayer(el); } });
+    let t = 0;
+    $("#pu-q", el).addEventListener("input", e => { clearTimeout(t); const q = e.target.value.trim(); t = setTimeout(async () => {
+      if (q.length < 2) { $("#pu-list", el).innerHTML = `<p class="hint">Начни вводить имя друга.</p>`; return; }
+      try { const { users } = await api("/api/users/find?q=" + encodeURIComponent(q));
+        $("#pu-list", el).innerHTML = users.length ? users.map(u => `<button class="lrow" data-pick='${esc(JSON.stringify({ id: u.id, nick: u.nick }))}'>${avatar(u, 40)}<span class="t"><b>${nm(u)}</b><span>${u.username ? "@" + esc(u.username) + " · " : ""}ур. ${u.level}</span></span></button>`).join("") : `<p class="hint">Никого не нашли. Друг должен хотя бы раз открыть Метку.</p>`;
+      } catch { $("#pu-list", el).innerHTML = `<p class="hint">Поиск не удался</p>`; }
+    }, 250); });
+    setTimeout(() => $("#pu-q", el)?.focus(), 300);
+  });
+}
+function openCases(startTab = "cases") {
   if (S.stack.some(x => x.el.classList.contains("cases-ov"))) return;
   const el = document.createElement("div"); el.className = "full cases-ov";
   pushLayer(el);
+  let tab = startTab, tier = TIER_IDS.find(t => S.cases.tiers?.[t]) || "common", gifts = null, busy = false;
+  const loadGifts = async () => { try { gifts = (await api("/api/gifts")).gifts; } catch { gifts = []; } if (tab === "gifts") draw(); };
   const draw = () => {
-    const c = S.cases, owned = new Set(S.items);
-    el.innerHTML = `<div class="det">
-      <div class="det-top"><span class="lbl">Кейсы</span><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
-      <section class="casehero">
-        <img class="vsticker float" src="${VA.crate()}" alt="">
-        <div><b class="cnum mono">${c.count}</b><span>${plural(c.count, "кейс", "кейса", "кейсов")} у тебя</span></div>
-      </section>
+    const c = S.cases, owned = new Set(S.items), T = CASE_TIERS[tier], tc = c.tiers?.[tier] || 0;
+    const head = `<div class="det-top"><span class="lbl">Кейсы и подарки</span><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
+      <div class="seg" role="group">${[["cases", `🎁 Кейсы ${c.count}`], ["inv", "🎒 Инвентарь"], ["gifts", "🏰 Подарки"]].map(([k, t]) => `<button data-ctab="${k}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>`;
+    let body = "";
+    if (tab === "cases") body = `
+      <div class="tiers">${TIER_IDS.map(t => `<button class="tier ${t === tier ? "on" : ""}" data-tier="${t}" style="--tc:${CASE_TIERS[t].c}"><img src="${TIER_CRATE(t)}" alt=""><b class="mono">${c.tiers?.[t] || 0}</b><span>${CASE_TIERS[t].t.replace(" кейс", "")}</span></button>`).join("")}</div>
+      <section class="casehero" style="--tc:${T.c}"><img class="vsticker float" src="${TIER_CRATE(tier)}" alt=""><div><b class="cnum mono">${tc}</b><span>${esc(T.t)}</span></div></section>
       <div class="roul" id="roul" hidden><div class="rtrack" id="rtrack"></div><div class="rmark"></div></div>
       <div id="rwin"></div>
       <div class="acts">
-        ${c.dailyReady ? `<button class="btn teal span" id="c-daily">🎁 Забрать бесплатный кейс дня</button>` : `<div class="btn soft span" style="pointer-events:none">Следующий бесплатный кейс завтра</div>`}
-        <button class="btn pri span" id="c-open" ${c.count ? "" : "disabled"}>Открыть кейс</button>
+        ${c.dailyReady ? `<button class="btn teal span" id="c-daily">🎁 Забрать бесплатный кейс дня</button>` : ""}
+        <button class="btn pri" id="c-open" ${tc ? "" : "disabled"}>Открыть</button>
+        <button class="btn soft" id="c-send" ${tc ? "" : "disabled"}>🎁 Подарить</button>
       </div>
-      <p class="hint">Кейсы дают каждый день, за каждый новый уровень и за задание дня. Если выпадет то, что уже есть, получишь опыт.</p>
-      <h3 class="sec">Что может выпасть</h3>
-      <div class="odds">${[["common", 60], ["rare", 28], ["epic", 10], ["legend", 2]].map(([r, p]) => `<span class="r-${r}"><i></i>${RARITY[r].t} ${p}%</span>`).join("")}</div>
-      <div class="cgrid">${CASE_ITEMS.map(i => itemCard(i.id, owned.has(i.id) ? "own" : "")).join("")}</div>
-      <h3 class="sec">Мой инвентарь · ${S.items.length}</h3>
-      ${S.items.length ? `<div class="cgrid">${S.items.map(id => itemCard(id, "own wearable")).join("")}</div>` : `<p class="hint">Пока пусто. Открой первый кейс!</p>`}
-    </div>`;
+      <p class="hint">Обычный кейс дают каждый день и за новый уровень, редкий за задание дня. Если выпадет то, что уже есть, получишь опыт. Подарки-места всегда новые и с номером.</p>
+      <h3 class="sec">Шансы · ${esc(T.t)}</h3>
+      <div class="odds">${Object.entries(T.odds).filter(([, v]) => v).map(([r, v]) => `<span class="r-${r}"><i></i>${RARITY[r].t} ${v}%</span>`).join("")}</div>
+      <div class="cgrid">${CASE_ITEMS.filter(i => T.odds[i.r]).map(i => itemCard(i.id, owned.has(i.id) || i.kind === "xp" || i.kind === "gift" ? "own" : "")).join("")}</div>`;
+    if (tab === "inv") {
+      const kinds = [["avatar", "Аватары"], ["status", "Статусы"], ["banner", "Фоны профиля"], ["skin", "Скины карточек"]];
+      const worn = i => (i.kind === "avatar" && S.me.avatar === i.v) || (i.kind === "status" && S.me.status === i.v) || (i.kind === "banner" && S.me.banner === i.v) || (i.kind === "skin" && S.me.skin === i.v);
+      body = S.items.length ? kinds.map(([k, t]) => { const list = S.items.map(id => CASE_ITEM[id]).filter(i => i?.kind === k); return list.length ? `<h3 class="sec">${t}</h3><div class="cgrid">${list.map(i => itemCard(i.id, "own wearable" + (worn(i) ? " worn" : ""), worn(i) ? " · надето" : "")).join("")}</div>` : ""; }).join("") + `<p class="hint">Нажми на предмет, чтобы надеть. Скин меняет вид всех твоих меток для всех игроков.</p>`
+        : `<div class="empty"><img class="crate" src="${VA.crate()}" alt=""><h3>Инвентарь пуст</h3><p>Открой кейс и выбей аватар, статус, фон профиля или скин карточек.</p></div>`;
+    }
+    if (tab === "gifts") {
+      if (!gifts) { body = `<div class="sk" style="aspect-ratio:2/1"></div>`; loadGifts(); }
+      else body = gifts.length ? `<p class="hint">Подарки-места уникальны: у каждого свой номер и один владелец. Их можно показать в профиле или подарить другу.</p><div class="gshelf big">${gifts.map(g => giftCard(g, true)).join("")}</div>`
+        : `<div class="empty"><div class="big">🏰</div><h3>Пока нет подарков</h3><p>Места Ялты выпадают из кейсов: от ракушки с пляжа до Ласточкина гнезда.</p></div>`;
+    }
+    el.innerHTML = `<div class="det">${head}${body}</div>`;
     $("[data-close]", el).onclick = () => popLayer(el);
+    $$("[data-ctab]", el).forEach(b => b.onclick = () => { H.pick(); tab = b.dataset.ctab; draw(); });
+    $$("[data-tier]", el).forEach(b => b.onclick = () => { H.pick(); tier = b.dataset.tier; draw(); });
     $("#c-daily", el)?.addEventListener("click", async () => {
-      try { const r = await api("/api/cases/daily", { method: "POST" }); S.cases = r.cases; H.ok(); stickerPop(VA.crate(), "Кейс дня получен!"); draw(); renderTab(); }
-      catch { toast("Кейс дня уже забран"); }
+      try { const r = await api("/api/cases/daily", { method: "POST" }); S.cases = r.cases; tier = "common"; stickerPop(VA.crate(), "Кейс дня получен!"); draw(); renderTab(); } catch { toast("Кейс дня уже забран"); }
     });
     $("#c-open", el)?.addEventListener("click", () => spin());
+    $("#c-send", el)?.addEventListener("click", async () => {
+      const u = await pickUser(`Подарить: ${T.t.toLowerCase()}`); if (!u) return;
+      try { const r = await api("/api/cases/send", { method: "POST", body: { to: String(u.id), tier } }); S.cases = r.cases; H.ok(); stickerPop(TIER_CRATE(tier), `Кейс отправлен: ${u.nick}`); draw(); renderTab(); } catch (e) { toast(e.error === "no_cases" ? "Нет таких кейсов" : "Не получилось подарить"); }
+    });
     $$(".wearable", el).forEach(card => card.addEventListener("click", () => wear(card.dataset.item)));
+    $$("[data-gpin]", el).forEach(b => b.onclick = async () => { const g = gifts.find(x => x.id == b.dataset.gpin); try { gifts = (await api(`/api/gifts/${g.id}/pin`, { method: "POST", body: { pinned: !g.pinned } })).gifts; H.ok(); draw(); } catch { toast("Не получилось"); } });
+    $$("[data-gsend]", el).forEach(b => b.onclick = async () => {
+      const g = gifts.find(x => x.id == b.dataset.gsend), i = CASE_ITEM[g.item];
+      const u = await pickUser(`Подарить «${i.t} #${g.serial}»`); if (!u) return;
+      try { gifts = (await api(`/api/gifts/${g.id}/send`, { method: "POST", body: { to: String(u.id) } })).gifts; H.seq(2); stickerPop(VA.crystal(RCOL[i.r]), `${i.e} #${g.serial} теперь у ${u.nick}`); draw(); } catch { toast("Не получилось подарить"); }
+    });
   };
   async function spin() {
-    const btn = $("#c-open", el); btn.disabled = true; btn.textContent = "Крутим…"; $("#c-daily", el)?.setAttribute("disabled", "");
+    if (busy) return; busy = true;
+    const btn = $("#c-open", el); btn.disabled = true; btn.textContent = "Крутим…"; $("#c-send", el).disabled = true;
     let r;
-    try { r = await api("/api/cases/open", { method: "POST" }); }
-    catch { btn.disabled = false; btn.textContent = "Открыть кейс"; toast("Нет кейсов"); return; }
-    const roul = $("#roul", el), track = $("#rtrack", el); roul.hidden = false; $("#rwin", el).innerHTML = "";
+    try { r = await api("/api/cases/open", { method: "POST", body: { tier } }); }
+    catch { busy = false; draw(); toast("Нет кейсов"); return; }
+    const roul = $("#roul", el), track = $("#rtrack", el); roul.hidden = false;
     track.innerHTML = r.strip.map(id => itemCard(id)).join("");
-    const card = track.firstElementChild, step = card.getBoundingClientRect().width + 10;
+    const step = track.firstElementChild.getBoundingClientRect().width + 10;
     const W = roul.clientWidth, target = r.win * step + step / 2 - W / 2 + (Math.random() - .5) * step * .6;
     const D = matchMedia("(prefers-reduced-motion: reduce)").matches ? 300 : 6200, t0 = performance.now();
     let lastIdx = -1;
-    await new Promise(done => {
-      const frame = t => {
-        const k = Math.min(1, (t - t0) / D), e = 1 - (1 - k) ** 4, x = target * e;
-        track.style.transform = `translate3d(${-x}px,0,0)`;
-        const idx = Math.floor((x + W / 2) / step);
-        if (idx !== lastIdx) { lastIdx = idx; H.pick(); tick(); }
-        k < 1 ? requestAnimationFrame(frame) : done();
-      };
-      requestAnimationFrame(frame);
-    });
+    await new Promise(done => { const frame = t => { const k = Math.min(1, (t - t0) / D), x = target * (1 - (1 - k) ** 4); track.style.transform = `translate3d(${-x}px,0,0)`; const idx = Math.floor((x + W / 2) / step); if (idx !== lastIdx) { lastIdx = idx; H.pick(); tick(); } k < 1 ? requestAnimationFrame(frame) : done(); }; requestAnimationFrame(frame); });
     const prize = CASE_ITEM[r.prize];
     track.children[r.win]?.classList.add("won");
     prize.r === "legend" ? H.seq(4) : prize.r === "epic" ? H.seq(2) : H.ok();
     chime({ common: 0, rare: 1, epic: 2, legend: 2 }[prize.r]); if (prize.r !== "common") burst(prize.r);
-    await refreshMe();
-    const wearable = prize.kind !== "xp" && !r.duplicate;
-    $("#rwin", el).innerHTML = `<div class="win r-${prize.r}"><span class="we bounce">${prize.e}</span><div><small>${RARITY[prize.r].t}</small><b>${esc(prize.t)}</b><span>${r.duplicate ? `Уже было в инвентаре → +${r.xp} XP` : prize.kind === "xp" ? "Опыт начислен" : "Добавлено в инвентарь"}${r.levelUps ? ` · новый уровень! +${r.levelUps} 🎁` : ""}</span></div>${wearable ? `<button class="btn pri" id="c-wear">Надеть</button>` : ""}</div>`;
+    await refreshMe(); gifts = null;
+    const wearable = !["xp", "gift"].includes(prize.kind) && !r.duplicate;
+    const winHTML = `<div class="win r-${prize.r}"><span class="we bounce">${prize.e}</span><div><small>${RARITY[prize.r].t}</small><b>${esc(prize.t)}${r.gift ? ` #${r.gift.serial}` : ""}</b><span>${r.gift ? "Уникальный подарок, он только твой" : r.duplicate ? `Уже было → +${r.xp} XP` : prize.kind === "xp" ? "Опыт начислен" : "Добавлено в инвентарь"}${r.levelUps ? ` · новый уровень! +${r.levelUps} 🎁` : ""}</span></div>${wearable ? `<button class="btn pri" id="c-wear">Надеть</button>` : r.gift ? `<button class="btn pri" id="c-gifts">Смотреть</button>` : ""}</div>`;
+    const roulHTML = roul.outerHTML;
+    busy = false; draw();
+    $("#roul", el).outerHTML = roulHTML; $("#rwin", el).innerHTML = winHTML;
     $("#c-wear", el)?.addEventListener("click", () => wear(prize.id));
-    const keep = $("#rwin", el).innerHTML;
-    setTimeout(() => { if (!el.isConnected) return; const roulHTML = roul.outerHTML; draw(); $("#roul", el).outerHTML = roulHTML; $("#rwin", el).innerHTML = keep; $("#c-wear", el)?.addEventListener("click", () => wear(prize.id)); }, 1400);
+    $("#c-gifts", el)?.addEventListener("click", () => { tab = "gifts"; draw(); });
   }
   async function wear(id) {
-    const i = CASE_ITEM[id]; if (!i || i.kind === "xp") return;
-    const body = { ...S.me, banner: S.me.banner || "" };
-    if (i.kind === "avatar") body.avatar = i.v; if (i.kind === "status") body.status = i.v; if (i.kind === "banner") body.banner = i.v;
-    try { await api("/api/me", { method: "POST", body }); await refreshMe(); H.ok(); stickerPop(VA.crystal({ common: "#9AA4B8", rare: "#4D8BFF", epic: "#A66BFF", legend: "#FFB020" }[i.r]), `${i.e} Надето!`); renderTab(); }
+    const i = CASE_ITEM[id]; if (!i || ["xp", "gift"].includes(i.kind)) return;
+    const body = { ...S.me, banner: S.me.banner || "", skin: S.me.skin || "" };
+    body[i.kind] = i.v;
+    try { await api("/api/me", { method: "POST", body }); await refreshMe(); stickerPop(VA.crystal(RCOL[i.r]), `${i.e} Надето!`); renderTab(); if (tab === "inv") draw(); }
     catch { toast("Не получилось надеть"); }
   }
+  draw();
+}
+
+/* ================= admin ================= */
+function openModeration(u, after) {
+  const el = document.createElement("div"); el.className = "ov";
+  const owner = S.me.role === "owner";
+  el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>
+    <div class="sh-h"><h2>Модерация</h2><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
+    <div class="lrow" style="pointer-events:none">${avatar(u, 44)}<span class="t"><b>${nm(u)}</b><span>${u.username ? "@" + esc(u.username) + " · " : ""}ID ${u.id}</span></span>${roleBadge(u)}</div>
+    <div class="acts" style="margin-top:14px">
+      <button class="btn ${u.banned ? "teal" : "danger"} span" data-mod="banned" data-v="${!u.banned}">${u.banned ? "✅ Разбанить" : "⛔ Забанить"}</button>
+      <button class="btn soft" data-mod="verified" data-v="${!u.verified}">${u.verified ? "Снять галочку" : "Выдать галочку"}</button>
+      ${owner ? `<button class="btn soft" data-mod="admin" data-v="${u.role !== "admin"}">${u.role === "admin" ? "Снять админку" : "🛡 Сделать админом"}</button>` : `<span></span>`}
+      ${owner ? `<button class="btn pri span" data-grant>🎁 Выдать кейсы или подарки</button>` : ""}
+    </div>
+    <p class="hint">Бан скрывает все метки пользователя и закрывает ему доступ. Админов назначает только владелец.</p></div>`;
+  pushLayer(el);
+  el.addEventListener("click", async e => {
+    if (e.target === el || e.target.closest("[data-close]")) return popLayer(el);
+    if (e.target.closest("[data-grant]")) { popLayer(el); openAdmin("grant", u); return; }
+    const b = e.target.closest("[data-mod]"); if (!b) return;
+    if (b.dataset.mod === "banned" && b.dataset.v === "true" && !b.dataset.armed) { b.dataset.armed = 1; b.textContent = "Точно забанить? Нажми ещё раз"; H.err(); return; }
+    b.disabled = true;
+    try { const r = await api(`/api/admin/users/${u.id}`, { method: "POST", body: { [b.dataset.mod]: b.dataset.v === "true" } }); Object.assign(u, r.user); H.ok(); toast("Готово"); popLayer(el); after?.(r.user); }
+    catch (err) { b.disabled = false; toast({ owner_protected: "Владельца трогать нельзя", only_owner: "Это может только владелец" }[err.error] || "Не получилось"); }
+  });
+}
+function openAdmin(startTab = "home", preUser = null) {
+  const el = document.createElement("div"); el.className = "full";
+  pushLayer(el);
+  const owner = S.me.role === "owner";
+  let tab = startTab, q = "", filter = "", grant = { to: preUser ? String(preUser.id) : "", toLabel: preUser ? preUser.nick : "", kind: "case", tier: "rare", item: "g_nest", n: 1 };
+  const draw = async () => {
+    const tabs = [["home", "Обзор"], ["users", "Люди"], ["marks", "Метки"], ...(owner ? [["grant", "Выдача"]] : [])];
+    el.innerHTML = `<div class="det"><div class="det-top"><span class="lbl">🛡 Админ-панель ${roleBadge(S.me)}</span><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
+      <div class="seg" role="group">${tabs.map(([k, t]) => `<button data-atab="${k}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div><div id="abody"><div class="sk" style="aspect-ratio:2/1"></div></div></div>`;
+    $("[data-close]", el).onclick = () => popLayer(el);
+    $$("[data-atab]", el).forEach(b => b.onclick = () => { H.pick(); tab = b.dataset.atab; draw(); });
+    const box = $("#abody", el);
+    try {
+      if (tab === "home") {
+        const st = await api("/api/admin/stats");
+        box.innerHTML = `<div class="stats astats">${[["Игроков", st.users], ["Меток", st.marks], ["За сутки", st.today], ["В бане", st.banned], ["Админов", st.admins]].map(([t, v]) => `<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("")}</div>
+          <h3 class="sec">Журнал действий</h3>
+          <div class="lb">${st.log.length ? st.log.map(l => `<div class="lrow"><span class="t"><b>${esc(String(l.admin))}</b><span>${esc({ ban: "забанил", unban: "разбанил", verify: "выдал галочку", unverify: "снял галочку", make_admin: "назначил админом", remove_admin: "снял админку", delete_mark: "удалил метку", grant: "выдал" }[l.action] || l.action)} · ${esc(l.target)}</span></span><span class="d mono" style="font-size:11px;color:var(--mut)">${ago(l.at)}</span></div>`).join("") : `<p class="hint">Пока пусто.</p>`}</div>`;
+      }
+      if (tab === "users") {
+        box.innerHTML = `<div class="field"><input class="inp" id="aq" placeholder="Поиск: ник, @username, ID" value="${esc(q)}" autocomplete="off"></div>
+          <div class="chips" style="margin:12px 0">${[["", "Все"], ["admins", "Админы"], ["banned", "Забаненные"]].map(([k, t]) => `<button class="chip" data-af="${k}" aria-pressed="${filter === k}">${t}</button>`).join("")}</div><div class="lb" id="alist"></div>`;
+        const load = async () => { const { users } = await api(`/api/admin/users?q=${encodeURIComponent(q)}&filter=${filter}`);
+          $("#alist", el).innerHTML = users.length ? users.map(u => `<button class="lrow ${u.banned ? "banned" : ""}" data-au='${esc(JSON.stringify(u))}'>${avatar(u, 40)}<span class="t"><b>${nm(u)} ${roleBadge(u)}</b><span>${u.username ? "@" + esc(u.username) + " · " : ""}ID ${u.id} · ${u.marks} меток${u.banned ? " · ⛔ бан" : ""}</span></span></button>`).join("") : `<p class="hint">Никого не нашли.</p>`; };
+        let t = 0; $("#aq", el).oninput = e => { q = e.target.value.trim(); clearTimeout(t); t = setTimeout(load, 250); };
+        $$("[data-af]", el).forEach(b => b.onclick = () => { filter = b.dataset.af; $$("[data-af]", el).forEach(x => x.setAttribute("aria-pressed", x === b)); load(); });
+        el.onclick = e => { const b = e.target.closest("[data-au]"); if (b) { const u = JSON.parse(b.dataset.au); u.role === "owner" ? openProfile(u.id) : openModeration(u, () => load()); } };
+        await load();
+      }
+      if (tab === "marks") {
+        const { marks } = await api("/api/admin/marks");
+        box.innerHTML = marks.length ? `<div class="lb">${marks.map(m => `<div class="lrow"><span style="font-size:26px">${esc(m.emoji)}</span><span class="t"><b>${esc(m.name)}</b><span>${nm(m.owner)} · ${RARITY[m.rarity].t} · ${ago(m.at)}</span></span><button class="gbtn" data-open="${m.code}">Открыть</button><button class="gbtn danger" data-adel="${m.code}">Удалить</button></div>`).join("")}</div>` : `<p class="hint">Меток пока нет.</p>`;
+        $$("[data-adel]", el).forEach(b => b.onclick = async () => { if (!b.dataset.armed) { b.dataset.armed = 1; b.textContent = "Точно?"; H.err(); return; } try { await api(`/api/marks/${b.dataset.adel}`, { method: "DELETE" }); H.ok(); b.closest(".lrow").remove(); toast("Метка удалена"); } catch (e) { toast(e.error === "owner_protected" ? "Метки владельца удаляет только он" : "Не получилось"); } });
+      }
+      if (tab === "grant") {
+        const G = grant;
+        box.innerHTML = `<div class="form">
+          <div class="field"><span class="lbl">Кому</span><button class="lrow" id="g-to">${G.to ? `<span class="t"><b>${esc(G.toLabel || G.to)}</b><span>ID ${esc(G.to)} · нажми, чтобы сменить</span></span>` : `<span class="t"><b>Выбрать игрока</b><span>поиск по нику, @username или ID</span></span>`}</button>
+            <input class="inp" id="g-id" placeholder="или впиши ID / @username" value="${esc(G.to)}" autocomplete="off"></div>
+          <div class="field"><span class="lbl">Что выдать</span><div class="seg">${[["case", "Кейсы"], ["item", "Предмет / подарок"], ["xp", "Опыт"]].map(([k, t]) => `<button data-gk="${k}" aria-pressed="${G.kind === k}">${t}</button>`).join("")}</div></div>
+          ${G.kind === "case" ? `<div class="tiers">${TIER_IDS.map(t => `<button class="tier ${t === G.tier ? "on" : ""}" data-gt="${t}" style="--tc:${CASE_TIERS[t].c}"><img src="${TIER_CRATE(t)}" alt=""><span>${CASE_TIERS[t].t.replace(" кейс", "")}</span></button>`).join("")}</div>` : ""}
+          ${G.kind === "item" ? `<div class="cgrid">${CASE_ITEMS.filter(i => i.kind !== "xp").map(i => itemCard(i.id, "own pickable" + (i.id === G.item ? " worn" : ""))).join("")}</div>` : ""}
+          <div class="field"><label class="lbl" for="g-n">${G.kind === "xp" ? "Сколько опыта" : "Количество"}</label><input class="inp mono" id="g-n" type="number" min="1" max="${G.kind === "xp" ? 100000 : 100}" value="${G.n}"></div>
+          <button class="btn pri w" id="g-go">🎁 Выдать</button>
+          <p class="hint">Игрок получит уведомление от бота со стикером. Всё записывается в журнал.</p></div>`;
+        $("#g-to", el).onclick = async () => { const u = await pickUser("Кому выдать"); if (u) { G.to = String(u.id); G.toLabel = u.nick; draw(); } };
+        $("#g-id", el).oninput = e => { G.to = e.target.value.trim(); G.toLabel = ""; };
+        $("#g-n", el).oninput = e => { G.n = Math.max(1, +e.target.value || 1); };
+        $$("[data-gk]", el).forEach(b => b.onclick = () => { G.kind = b.dataset.gk; G.n = G.kind === "xp" ? 100 : 1; draw(); });
+        $$("[data-gt]", el).forEach(b => b.onclick = () => { G.tier = b.dataset.gt; draw(); });
+        $$(".pickable", el).forEach(b => b.onclick = () => { G.item = b.dataset.item; draw(); });
+        $("#g-go", el).onclick = async () => {
+          if (!G.to) { toast("Выбери, кому выдать"); return; }
+          try { const r = await api("/api/admin/grant", { method: "POST", body: { to: G.to, kind: G.kind, tier: G.tier, item: G.item, n: G.n } }); H.seq(2); stickerPop(VA.crate(), `Выдано: ${r.label}`); if (String(r.to.id) === String(S.me.id)) { await refreshMe(); } }
+          catch (e) { toast({ user_not_found: "Игрок не найден", only_owner: "Только владелец" }[e.error] || "Не получилось выдать"); }
+        };
+      }
+    } catch (e) { box.innerHTML = `<p class="hint">${e.error === "forbidden" ? "Нет доступа" : "Не удалось загрузить"}</p>`; }
+  };
   draw();
 }
 function tick() {
@@ -1849,6 +2105,7 @@ new MutationObserver(() => PX.refresh()).observe(document.body, { childList: tru
   view.innerHTML = `<div class="scroll"><div class="page"><div class="sk" style="aspect-ratio:4/1"></div><div class="grid"><div class="sk"></div><div class="sk"></div></div></div></div>`;
   try { await refreshMe(); }
   catch (e) { view.innerHTML = `<div class="scroll"><div class="empty" style="padding-top:30vh"><div class="big">📡</div><h3>${e.error === "unauthorized" ? "Открой Метку через Telegram" : "Нет связи с сервером"}</h3><p>${e.error === "unauthorized" ? "Приложение работает внутри бота." : "Проверь интернет и открой приложение снова."}</p></div></div>`; return; }
+  if (S.me.banned) { view.innerHTML = `<div class="scroll"><div class="empty" style="padding-top:28vh"><div class="big">⛔</div><h3>Аккаунт заблокирован</h3><p>Модератор ограничил доступ к Метке.</p></div></div>`; $(".dock").hidden = true; return; }
   if (!S.me.onboarded) openEditProfile(true); else boot2();
 })();
 

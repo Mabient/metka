@@ -429,3 +429,62 @@ body.peeking .mapbtns{bottom:calc(var(--dock) + var(--sab) + 130px)}
 @keyframes goldsh{50%{background-position:100% 0}}
 .hero.bn-neon,.hero.bn-aurora,.hero.bn-gold{color:#fff}
 .hero.bn-neon::after,.hero.bn-aurora::after,.hero.bn-gold::after{background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35) 100%)}
+
+/* ---------- verified, roles, telegram ---------- */
+.vcheck{width:1.05em;height:1.05em;display:inline-block;vertical-align:-.15em;margin-left:.25em;flex:none}
+.rbadge{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:7px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;margin-left:4px}
+.rbadge.own{background:linear-gradient(90deg,#FFD43B,#FF8A3D);color:#1C1500}
+.rbadge.adm{background:#2AABEE;color:#fff}
+.hero-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.hero-tags .stt{margin-top:0}
+.tglink{display:inline-flex;margin-top:6px;font-size:13px;font-weight:700;color:#2AABEE;text-decoration:none}
+.avimg{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.em.tgav{padding:0;overflow:hidden}
+.em.tgav img{width:100%;height:100%;object-fit:cover}
+.tgcard{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:color-mix(in oklab,#2AABEE 14%,var(--s1));border:1px solid color-mix(in oklab,#2AABEE 40%,var(--line));font-size:14px}
+.tgcard span:nth-child(2){flex:1}
+.lrow.banned{opacity:.6}
+.lrow .t b{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+.astats{grid-template-columns:repeat(5,minmax(0,1fr))}
+.astats .stat b{font-size:16px}
+.gbtn{flex:none;height:32px;padding:0 10px;border-radius:10px;background:var(--s2);border:1px solid var(--line);font-size:12px;font-weight:700;box-shadow:0 3px 0 var(--s3)}
+.gbtn.danger{color:var(--red)}
+.gbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--s3)}
+
+/* ---------- tiered cases ---------- */
+.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tier{display:grid;justify-items:center;gap:2px;padding:10px 4px 8px;border-radius:16px;background:var(--s1);border:2px solid var(--line);box-shadow:0 4px 0 var(--s2);transition:transform .12s}
+.tier img{width:46px;height:auto}
+.tier b{font-family:var(--f-d);font-size:16px}
+.tier span{font-size:10.5px;font-weight:800;color:var(--tc)}
+.tier.on{border-color:var(--tc);background:color-mix(in oklab,var(--tc) 14%,var(--s1));box-shadow:0 4px 0 color-mix(in oklab,var(--tc) 60%,#000)}
+.tier:active{transform:translateY(3px)}
+.casehero{background:radial-gradient(120% 120% at 30% 20%,color-mix(in oklab,var(--tc,#FFD43B) 30%,transparent),transparent 60%),var(--s1)!important}
+.citem.worn{outline:3px solid var(--acc);outline-offset:2px}
+.citem.k-gift{background:linear-gradient(180deg,color-mix(in oklab,var(--rc) 30%,var(--s2)),var(--s2))}
+.citem.k-skin .ce{filter:drop-shadow(0 0 8px var(--rc))}
+
+/* ---------- gifts ---------- */
+.gshelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.gift{position:relative;display:grid;justify-items:center;align-content:end;gap:2px;aspect-ratio:3/4;max-width:100%;padding:12px 8px 10px;border-radius:20px;background-size:cover;background-position:center;overflow:hidden;border:2px solid color-mix(in oklab,var(--rc) 70%,transparent);box-shadow:0 5px 0 color-mix(in oklab,var(--rc) 40%,#000),0 14px 24px -14px var(--rc);color:#fff;text-align:center}
+.gift::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.65));z-index:0}
+.gift > *{position:relative;z-index:1}
+.gift .ge{position:absolute;top:22%;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.45));animation:float 3.4s ease-in-out infinite}
+.gift .gnum{position:absolute;top:8px;right:9px;font-size:11px;font-weight:700;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px}
+.gift b{font-family:var(--f-d);font-size:12.5px;line-height:1.15;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.gift small{font-size:10px;font-weight:700;opacity:.85}
+.gift.r-legend::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 48%,transparent 60%);background-size:260% 100%;animation:shine 3s ease-in-out infinite;z-index:2;pointer-events:none}
+.gacts{display:grid;gap:5px;width:100%;margin-top:6px}
+.gacts .gbtn{width:100%;height:28px;font-size:11px;background:rgba(0,0,0,.45);color:#fff;border-color:rgba(255,255,255,.25);box-shadow:none}
+.gshelf.big .gift{aspect-ratio:3/4.4}
+
+/* ---------- card skins (owner's choice, everyone sees them) ---------- */
+.skin-pixel{border-radius:4px!important;box-shadow:4px 4px 0 var(--rc),8px 8px 0 color-mix(in oklab,var(--rc) 40%,transparent)!important;image-rendering:pixelated}
+.skin-pixel .ph{border-radius:0}
+.skin-marble{border:3px solid transparent!important;background:linear-gradient(var(--s1),var(--s1)) padding-box,conic-gradient(from 30deg,#f4f4f4,#bdbdbd,#fafafa,#9e9e9e,#f4f4f4) border-box!important}
+.skin-holo{border:3px solid transparent!important;background:linear-gradient(var(--s1),var(--s1)) padding-box,linear-gradient(90deg,#ff0080,#ffd000,#00ffaa,#0090ff,#c000ff,#ff0080) border-box!important;background-size:100% 100%,300% 100%!important;animation:holo 4s linear infinite}
+@keyframes holo{to{background-position:0 0,300% 0}}
+.skin-cosmos{border:3px solid #2a2f6a!important;box-shadow:0 0 0 2px #6E7BFF,0 0 24px -4px #6E7BFF!important}
+.skin-cosmos .lab,.skin-cosmos .body{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.5) 0 1px,transparent 1.5px),radial-gradient(circle at 70% 60%,rgba(255,255,255,.5) 0 1px,transparent 1.5px),radial-gradient(circle at 40% 80%,rgba(255,255,255,.4) 0 1px,transparent 1.5px),linear-gradient(180deg,#14163a,#0b0c22);background-size:60px 60px,80px 80px,50px 50px,100% 100%;color:#fff}
+.skin-gold{border:4px solid transparent!important;background:linear-gradient(var(--s1),var(--s1)) padding-box,linear-gradient(120deg,#5a3c00,#d9a400 30%,#fff1b0 45%,#d9a400 60%,#5a3c00) border-box!important;background-size:100% 100%,260% 100%!important;animation:goldsh2 4s ease-in-out infinite;box-shadow:0 0 24px -6px #FFB020!important}
+@keyframes goldsh2{50%{background-position:0 0,100% 0}}
