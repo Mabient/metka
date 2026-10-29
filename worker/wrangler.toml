@@ -3,7 +3,7 @@ main = "src/index.js"
 compatibility_date = "2025-06-01"
 
 [vars]
-BOT_USERNAME = "metka_city_bot"   # имя бота из BotFather, без @
+BOT_USERNAME = "Metkadetect_bot"   # имя бота из BotFather, без @
 APP_NAME = "app"                  # короткое имя Mini App из BotFather (/newapp)
 WEBAPP_URL = "https://YOUR_GITHUB_USER.github.io/metka/"
 

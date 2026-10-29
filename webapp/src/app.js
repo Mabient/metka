@@ -105,7 +105,7 @@ const fmtDate = ms => new Date(ms).toLocaleDateString("ru-RU", { day: "numeric",
 const ago = ms => { const s = (Date.now() - ms) / 1000; if (s < 60) return "только что"; if (s < 3600) return `${Math.floor(s / 60)} мин назад`; if (s < 86400) return `${Math.floor(s / 3600)} ч назад`; return `${Math.floor(s / 86400)} дн назад`; };
 const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
 const hasGeo = m => Number.isFinite(m?.lat) && Number.isFinite(m?.lon);
-const appLink = code => `https://t.me/${CFG.bot.startsWith("@@") ? "metka_city_bot" : CFG.bot}/${CFG.app.startsWith("@@") ? "app" : CFG.app}?startapp=m_${code}`;
+const appLink = code => `https://t.me/${CFG.bot.startsWith("@@") ? "Metkadetect_bot" : CFG.bot}/${CFG.app.startsWith("@@") ? "app" : CFG.app}?startapp=m_${code}`;
 function toast(msg, ms = 2600) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); }
 function openLink(url) { try { TG?.openLink ? TG.openLink(url) : window.open(url, "_blank", "noopener"); } catch { window.open(url, "_blank"); } }
 function openTgLink(url) { try { TG?.openTelegramLink ? TG.openTelegramLink(url) : window.open(url, "_blank", "noopener"); } catch { window.open(url, "_blank"); } }
