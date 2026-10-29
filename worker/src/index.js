@@ -91,7 +91,7 @@ async function tg(env, method, body) {
   });
   return r.json().catch(() => ({ ok: false }));
 }
-const appLink = (env, param) => `https://t.me/${env.BOT_USERNAME}/${env.APP_NAME}${param ? "?startapp=" + param : ""}`;
+const appLink = (env, param) => `https://t.me/${env.BOT_USERNAME}${param ? "?start=" + param : ""}`;
 
 /* ---------------- users, xp, streaks ---------------- */
 async function upsertUser(env, u) {
