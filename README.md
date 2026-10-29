@@ -18,8 +18,8 @@ shared/   правила игры: редкости, уровни, статус�
 ### 2. Приложение (GitHub Pages)
 ```bash
 cd webapp
-python3 build.py https://metka-api.<твой-поддомен>.workers.dev metka_city_bot app
-# опубликовать dist/index.html в репозиторий, включить Pages
+python3 build.py https://metka-api.ladavladus.workers.dev Metkadetect_bot app && cp dist/index.html ../docs/
+# GitHub Pages раздаёт папку docs/ → https://mabient.github.io/metka/
 ```
 
 ### 3. Сервер (Cloudflare)
