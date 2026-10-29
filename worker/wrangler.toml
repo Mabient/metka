@@ -13,7 +13,7 @@ binding = "AI"   # распознавание того, что на фото (б
 [[d1_databases]]
 binding = "DB"
 database_name = "metka"
-database_id = "PASTE_DATABASE_ID"
+database_id = "45a37751-eef7-46cc-afab-233809b6974a"
 
 # Единственный секрет — токен бота. Задаётся в панели Cloudflare:
 #   Worker → Settings → Variables and Secrets → Add → Secret → BOT_TOKEN
