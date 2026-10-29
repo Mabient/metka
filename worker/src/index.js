@@ -1,7 +1,7 @@
 // Метка — Telegram bot + API on Cloudflare Workers (D1 database).
 import {
   CATS, RARITY, STATUSES, REACTIONS, COLLECT_RADIUS_M, AVATARS, COLORS,
-  level, questOf, dayKey, distM, rollRarity, unlockedStatuses,
+  level, questOf, dayKey, distM, rollRarity, unlockedStatuses, detectSubject, makePattern,
 } from "../../shared/rules.js";
 
 const CAT_IDS = new Set(CATS.map(c => c.id));
@@ -38,6 +38,7 @@ function cors(res) {
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
 const randId = (n, abc = ABC) => { const r = crypto.getRandomValues(new Uint32Array(n)); let s = ""; for (const x of r) s += abc[x % abc.length]; return s; };
 const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u001f]/g, " ").trim().slice(0, max);
+const parseJson = v => { try { return v ? JSON.parse(v) : null; } catch { return null; } };
 const num = v => (v === null || v === undefined || v === "" || !Number.isFinite(+v)) ? null : +v;
 
 async function hmac(key, msg) {
@@ -150,6 +151,7 @@ const MARK_SELECT = `SELECT m.*, u.nick, u.first_name, u.avatar, u.color, u.stat
 const shapeMark = (r, origin) => ({
   code: r.code, name: r.name, emoji: r.emoji, cat: r.cat, story: r.story || "", place: r.place || "",
   lat: r.lat, lon: r.lon, rarity: r.rarity, num: r.num, at: r.created_at,
+  pattern: parseJson(r.pattern), seen: parseJson(r.seen),
   photo: r.photo_id ? `${origin}/img/${r.photo_id}` : null,
   reacts: r.reacts || 0, collects: r.collects || 0,
   owner: { id: r.owner, nick: r.nick || r.first_name || "Без имени", avatar: r.avatar || "🦊", color: r.color || "sun", status: r.status || "🌱", level: level(r.owner_xp || 0) },
@@ -170,25 +172,33 @@ async function createMark(req, env, me, origin, ctx) {
   const todayCount = await env.DB.prepare("SELECT COUNT(*) n FROM marks WHERE owner = ? AND created_at >= ?").bind(me.id, today).first("n");
   if (todayCount >= 40) return json({ error: "daily_limit" }, 429);
 
-  let photoId = null;
+  let photoId = null, subject = null;
   const photo = form.get("photo");
   if (photo && typeof photo === "object" && photo.size) {
     if (photo.size > MAX_PHOTO) return json({ error: "photo_too_large" }, 413);
     const mime = ["image/jpeg", "image/png", "image/webp"].includes(photo.type) ? photo.type : "image/jpeg";
+    const buf = await photo.arrayBuffer();
     photoId = randId(16, "abcdefghijklmnopqrstuvwxyz0123456789");
     await env.DB.prepare("INSERT INTO photos (id, mime, data, created_at) VALUES (?, ?, ?, ?)")
-      .bind(photoId, mime, await photo.arrayBuffer(), Date.now()).run();
+      .bind(photoId, mime, buf, Date.now()).run();
+    // What is in the photo? Cloudflare Workers AI image classifier (free tier). Optional: works without it.
+    if (env.AI) {
+      try { subject = detectSubject(await env.AI.run("@cf/microsoft/resnet-50", { image: [...new Uint8Array(buf)] })); } catch (e) { console.error("ai", e); }
+    }
   }
 
-  const rarity = rollRarity();
+  const tone = /^#[0-9a-f]{6}$/i.test(String(form.get("tone") || "")) ? String(form.get("tone")) : null;
+  const rarity = rollRarity(Math.random(), subject ? subject.s : .2);
+  const pattern = makePattern(rarity, subject?.e || emoji, tone);
+  const seen = subject ? JSON.stringify({ e: subject.e, ru: subject.ru, conf: subject.conf }) : null;
   let code;
   for (let i = 0; i < 6; i++) {
     code = randId(5);
     try {
       await env.DB.prepare(
-        `INSERT INTO marks (code, owner, name, emoji, cat, story, place, lat, lon, photo_id, rarity, num, created_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, (SELECT COALESCE(MAX(num), 0) + 1 FROM marks), ?12)`
-      ).bind(code, me.id, name, emoji, cat, clean(form.get("story"), 220), clean(form.get("place"), 60), lat, lon, photoId, rarity, Date.now()).run();
+        `INSERT INTO marks (code, owner, name, emoji, cat, story, place, lat, lon, photo_id, rarity, num, created_at, pattern, seen)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, (SELECT COALESCE(MAX(num), 0) + 1 FROM marks), ?12, ?13, ?14)`
+      ).bind(code, me.id, name, emoji, cat, clean(form.get("story"), 220), clean(form.get("place"), 60), lat, lon, photoId, rarity, Date.now(), JSON.stringify(pattern), seen).run();
       break;
     } catch (e) { if (!String(e).includes("UNIQUE") || i === 5) throw e; }
   }

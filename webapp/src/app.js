@@ -47,7 +47,43 @@ const CAT = Object.fromEntries(CATS.map(c => [c.id, c]));
 const COLOR = Object.fromEntries(COLORS.map(c => [c.id, c]));
 const hashStr = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 function genStyle(code) { const h = hashStr(code), a = h % 360, b = (a + 40 + (h >> 9) % 80) % 360; return `--g1:hsl(${a} 72% 60%);--g2:hsl(${b} 66% 46%);--g3:hsl(${(a + 200) % 360} 32% 18%)`; }
-const art = m => `<div class="px-in"><div class="gen" style="${genStyle(m.code)}"><span>${esc(m.emoji)}</span></div>` + (m.photo ? `<img class="pimg" src="${esc(m.photo)}" alt="" loading="lazy" data-fb="1">` : "") + `</div>`;
+/* ---------- card patterns: motif + emoji + colour, assigned by the system ---------- */
+const patOf = m => m.pattern || makePattern(m.rarity, m.emoji, null, seeded(m.code));
+const PATCACHE = new Map();
+function patternURL(p, key) {
+  const id = key + p.m + p.c1 + p.e;
+  if (PATCACHE.has(id)) return PATCACHE.get(id);
+  const W = 400, H = 500, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d"), R = seeded(key), sh = (h, k) => VOX.shadeHex(h, k);
+  const emo = (x, y, size, rot = 0, a = 1) => { g.save(); g.globalAlpha = a; g.translate(x, y); g.rotate(rot); g.font = `${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(p.e, 0, 0); g.restore(); };
+  if (p.m === "waves") {
+    g.fillStyle = sh(p.c1, .42); g.fillRect(0, 0, W, H);
+    for (let i = -1; i < 9; i++) {
+      const y0 = i * 62, amp = 16 + R() * 10, ph = R() * 6;
+      g.beginPath(); g.moveTo(0, H);
+      for (let x = 0; x <= W; x += 8) g.lineTo(x, y0 + Math.sin(x / 48 + ph) * amp);
+      g.lineTo(W, H); g.closePath();
+      g.fillStyle = i % 2 ? sh(p.c1, .7 + i * .03) : sh(p.c2, .55 + i * .04); g.fill();
+      for (let x = 30 + (i % 2) * 30; x < W; x += 74) emo(x, y0 + Math.sin(x / 48 + ph) * amp + 30, 24, Math.sin(x) * .25, .9);
+    }
+  } else if (p.m === "stars") {
+    const gr = g.createRadialGradient(W * .5, H * .3, 10, W * .5, H * .4, H * .75); gr.addColorStop(0, sh(p.c2, .45)); gr.addColorStop(1, "#070814");
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 170; i++) { g.fillStyle = `rgba(255,255,255,${.25 + R() * .7})`; const r = R() * 1.6 + .3; g.beginPath(); g.arc(R() * W, R() * H, r, 0, 7); g.fill(); }
+    const nodes = Array.from({ length: 7 }, () => [40 + R() * (W - 80), 40 + R() * (H - 80)]).sort((a, b) => a[0] - b[0]);
+    g.strokeStyle = p.c2; g.globalAlpha = .55; g.lineWidth = 1.6; g.beginPath(); nodes.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); g.globalAlpha = 1;
+    g.shadowColor = p.c2; g.shadowBlur = 22; nodes.forEach(([x, y], i) => emo(x, y, i % 3 ? 22 : 32)); g.shadowBlur = 0;
+  } else {
+    const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, p.c1); gr.addColorStop(1, sh(p.c1, .5));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 46; i++) { g.fillStyle = [p.c2, "#FFFFFF", sh(p.c1, 1.35)][i % 3]; g.save(); g.translate(R() * W, R() * H); g.rotate(R() * 6); g.globalAlpha = .7; g.fillRect(-6, -3, 12, 6); g.restore(); }
+    for (let i = 0; i < 30; i++) emo(R() * W, R() * H, 18 + R() * 28, (R() - .5) * 1.2, .55 + R() * .45);
+  }
+  if (p.holo) { const hg = g.createLinearGradient(0, 0, W, H); ["#ff0080", "#ffd000", "#00ffaa", "#0090ff", "#c000ff"].forEach((col, i) => hg.addColorStop(i / 4, col)); g.globalCompositeOperation = "overlay"; g.globalAlpha = .35; g.fillStyle = hg; g.fillRect(0, 0, W, H); g.globalCompositeOperation = "source-over"; g.globalAlpha = 1; }
+  const url = c.toDataURL("image/jpeg", .86); PATCACHE.set(id, url); return url;
+}
+const art = m => `<div class="px-in pat" style="background-image:url(${patternURL(patOf(m), m.code)})"></div>` +
+  (m.photo ? `<div class="photo-in"><img class="pimg px-in" src="${esc(m.photo)}" alt="" loading="lazy" data-fb="1"></div>` : `<span class="pat-e">${esc(m.emoji)}</span>`);
 const RCOL = { common: "#9AA4B8", rare: "#4D8BFF", epic: "#A66BFF", legend: "#FFB020" };
 const VA = {
   pin: (c = "#FFD43B") => VOX.cached("pin" + c, () => VOX.url(VOX.pin(c), 3, 2)),
@@ -136,8 +172,14 @@ async function compress(file) {
   if (!src) { const img = new Image(); img.src = URL.createObjectURL(file); await img.decode(); src = img; }
   const k = Math.min(1, 1280 / Math.max(src.width, src.height));
   const c = document.createElement("canvas"); c.width = Math.round(src.width * k); c.height = Math.round(src.height * k);
-  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
-  return await new Promise(r => c.toBlob(r, "image/jpeg", .84));
+  const ctx = c.getContext("2d"); ctx.drawImage(src, 0, 0, c.width, c.height);
+  // dominant vivid colour of the photo → card pattern colour
+  const t = document.createElement("canvas"); t.width = t.height = 24; const tg = t.getContext("2d"); tg.drawImage(c, 0, 0, 24, 24);
+  const px = tg.getImageData(0, 0, 24, 24).data; let r = 0, gg = 0, b = 0, w = 0;
+  for (let i = 0; i < px.length; i += 4) { const mx = Math.max(px[i], px[i + 1], px[i + 2]), mn = Math.min(px[i], px[i + 1], px[i + 2]), sat = mx ? (mx - mn) / mx : 0, k = sat * sat * (mx / 255) + .02; r += px[i] * k; gg += px[i + 1] * k; b += px[i + 2] * k; w += k; }
+  const tone = "#" + [r, gg, b].map(v => Math.round(v / w).toString(16).padStart(2, "0")).join("");
+  const blob = await new Promise(res => c.toBlob(res, "image/jpeg", .84));
+  return { blob, tone };
 }
 
 /* ================= API ================= */
@@ -251,7 +293,8 @@ const MOCK = (() => {
       if (photoBlob && photoBlob.size) photo = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(photoBlob); });
       const lat = f.get("lat") ? +f.get("lat") : null, lon = f.get("lon") ? +f.get("lon") : null;
       const m = { code, owner: 1, name: f.get("name"), emoji: f.get("emoji"), cat: f.get("cat"), story: f.get("story") || "", place: f.get("place") || "",
-        lat, lon, rarity: rollRarity(), num: Math.max(...D.marks.map(x => x.num)) + 1, at: Date.now(), photo };
+        lat, lon, rarity: rollRarity(Math.random(), .2), num: Math.max(...D.marks.map(x => x.num)) + 1, at: Date.now(), photo };
+      m.pattern = makePattern(m.rarity, m.emoji, f.get("tone"));
       D.marks.unshift(m);
       const xp = RARITY[m.rarity].xp + (photo ? 5 : 0) + (lat !== null ? 5 : 0);
       addXp(1, xp, "create"); touch(); const questXp = claim();
@@ -672,7 +715,7 @@ function openCreate() {
   async function onFile(e) {
     const f = e.target.files?.[0]; if (!f) return;
     try { const g = readGps(await f.slice(0, 262144).arrayBuffer()); if (g) { setGeo(g, "Координаты из фото"); H.ok(); } } catch {}
-    try { d.blob = await compress(f); } catch { d.blob = null; toast("Не получилось прочитать фото"); }
+    try { const out = await compress(f); d.blob = out.blob; d.tone = out.tone; } catch { d.blob = null; toast("Не получилось прочитать фото"); }
     if (d.url) URL.revokeObjectURL(d.url);
     d.url = d.blob ? URL.createObjectURL(d.blob) : null; photo();
     if (!d.geo) { const p = await getLocation(); if (p && !d.geo) setGeo(p, "Твоё местоположение"); }
@@ -693,7 +736,7 @@ function openCreate() {
     fd.set("name", $("#c-name", el).value.trim()); fd.set("cat", d.cat); fd.set("emoji", d.emoji);
     fd.set("story", $("#c-story", el).value.trim()); fd.set("place", $("#c-place", el).value.trim());
     if (d.geo) { fd.set("lat", d.geo.lat.toFixed(6)); fd.set("lon", d.geo.lon.toFixed(6)); }
-    if (d.blob) fd.set("photo", d.blob, "photo.jpg");
+    if (d.blob) { fd.set("photo", d.blob, "photo.jpg"); if (d.tone) fd.set("tone", d.tone); }
     try {
       const r = await api("/api/marks", { method: "POST", body: fd });
       const up = await refreshMe();
@@ -709,7 +752,7 @@ function openCreate() {
 function reveal(r, up) {
   const m = r.mark, rv = RARITY[m.rarity];
   const el = document.createElement("div"); el.className = `ov reveal r-${m.rarity}`;
-  const gains = [`+${r.xp} XP`]; if (r.questXp) gains.push(`Задание дня +${r.questXp} XP`); if (up.levelUp) gains.push(`Уровень ${up.levelUp}!`); up.newStatuses.forEach(s => gains.push(`Новый статус ${s}`));
+  const gains = [`+${r.xp} XP`, `Узор «${PATTERNS[patOf(m).m].t}»`]; if (m.seen) gains.push(`ИИ увидел: ${m.seen.e} ${m.seen.ru}`); if (r.questXp) gains.push(`Задание дня +${r.questXp} XP`); if (up.levelUp) gains.push(`Уровень ${up.levelUp}!`); up.newStatuses.forEach(s => gains.push(`Новый статус ${s}`));
   el.innerHTML = `<img class="rv-cr" src="${VA.crystal(RCOL[m.rarity])}" alt=""><div class="flip"><div class="face back">${crateImg()}<span>?</span></div>
     <div class="face front r-${m.rarity}"><div class="ph">${art(m)}<span class="gem">${rv.t}</span></div><div class="lab"><div class="nm">${esc(m.emoji)} ${esc(m.name)}</div><span class="mono" style="font-size:12px;color:var(--mut)">№${String(m.num).padStart(4, "0")} · ${m.code}</span></div></div></div>
     <h3>Метка поставлена<em>${rv.t}</em></h3>
@@ -745,7 +788,9 @@ async function openMark(code) {
         <div class="ph">${art(m)}<span class="chipe">${esc(m.emoji)}</span><span class="gem">${RARITY[m.rarity].t}</span><span class="num mono">${m.code}</span><div class="glare"></div></div>
         <div class="body"><h1>${esc(m.name)}</h1>${m.story ? `<p class="story">${esc(m.story)}</p>` : ""}
           <button class="owner" data-user="${m.owner.id}">${avatar(m.owner, 42)}<span class="ot"><b>${esc(m.owner.nick)}</b><span>Первооткрыватель · ур. ${m.owner.level}</span></span></button>
-          <dl class="spec"><dt>Вид</dt><dd>${CAT[m.cat]?.e} ${CAT[m.cat]?.t}</dd><dt>Найдена</dt><dd>${fmtDate(m.at)}</dd>${m.place ? `<dt>Где</dt><dd>${esc(m.place)}</dd>` : ""}${dist != null ? `<dt>До неё</dt><dd>${fmtDist(dist)}</dd>` : ""}<dt>Собрали</dt><dd>${m.collects} ${plural(m.collects, "человек", "человека", "человек")}</dd></dl>
+          <dl class="spec"><dt>Вид</dt><dd>${CAT[m.cat]?.e} ${CAT[m.cat]?.t}</dd><dt>Найдена</dt><dd>${fmtDate(m.at)}</dd>${m.place ? `<dt>Где</dt><dd>${esc(m.place)}</dd>` : ""}${dist != null ? `<dt>До неё</dt><dd>${fmtDist(dist)}</dd>` : ""}<dt>Собрали</dt><dd>${m.collects} ${plural(m.collects, "человек", "человека", "человек")}</dd>
+          <dt>Узор</dt><dd><span class="patchip" style="background-image:url(${patternURL(patOf(m), m.code)})"></span>${PATTERNS[patOf(m).m].t}</dd>
+          ${m.seen ? `<dt>ИИ увидел</dt><dd>${esc(m.seen.e)} ${esc(m.seen.ru)} · ${m.seen.conf}%</dd>` : ""}</dl>
         </div></article></div>
       <div class="reacts">${REACTIONS.map(e => `<button class="rx" data-rx="${e}" aria-pressed="${d.myReaction === e}">${e}${d.reactions[e] ? `<b>${d.reactions[e]}</b>` : ""}</button>`).join("")}</div>
       <div class="acts">

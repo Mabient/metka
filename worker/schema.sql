@@ -12,7 +12,9 @@ CREATE TABLE IF NOT EXISTS marks (
   name TEXT NOT NULL, emoji TEXT NOT NULL, cat TEXT NOT NULL,
   story TEXT, place TEXT, lat REAL, lon REAL, photo_id TEXT,
   rarity TEXT NOT NULL, num INTEGER NOT NULL,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  pattern TEXT,                     -- JSON: motif, emoji, colours given by the system
+  seen TEXT                         -- JSON: what the image classifier recognised
 );
 CREATE INDEX IF NOT EXISTS marks_owner ON marks(owner, created_at);
 CREATE INDEX IF NOT EXISTS marks_time ON marks(created_at);

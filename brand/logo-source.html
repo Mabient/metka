@@ -1,0 +1,27 @@
+<!doctype html><html><body style="margin:0;background:#000">
+<canvas id="c" width="640" height="640"></canvas>
+<script src="/home/claude/metka-tg/webapp/src/voxel.js"></script>
+<script>
+const c = document.getElementById("c"), g = c.getContext("2d");
+const bg = g.createRadialGradient(320, 230, 40, 320, 320, 460);
+bg.addColorStop(0, "#3B3F7A"); bg.addColorStop(.55, "#1A2350"); bg.addColorStop(1, "#0E1016");
+g.fillStyle = bg; g.fillRect(0, 0, 640, 640);
+// stars
+for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(255,255,255,${.2 + Math.random() * .6})`; g.fillRect(Math.random() * 640, Math.random() * 300, 2, 2); }
+// island platform
+const island = [];
+for (let x = 0; x < 7; x++) for (let y = 0; y < 7; y++) {
+  const edge = x === 0 || y === 0 || x === 6 || y === 6;
+  island.push([x, y, 0, edge ? "#2B7BD8" : "#E9C97A"]);
+  if (!edge && x > 1 && x < 5 && y > 1 && y < 5) island.push([x, y, 1, ["#5DBB63", "#4FA857"][(x + y) % 2]]);
+}
+island.push([1, 4, 1, "#2F7D44"], [1, 4, 2, "#2F7D44"], [1, 4, 3, "#3C9655"]);
+island.push([5, 1, 1, "#FFFFFF"], [5, 1, 2, "#FF5C6C"], [5, 1, 3, "#FFFFFF"], [5, 1, 4, "#FFD43B"]);
+VOX.draw(g, island, 22, 320, 400);
+// big pin
+const pin = VOX.pin("#FFD43B", "#12151C");
+g.save(); g.shadowColor = "rgba(255,212,59,.55)"; g.shadowBlur = 50;
+VOX.draw(g, pin.map(([x, y, z, col]) => [x - 2, y - 2, z, col]), 30, 320, 330);
+g.restore();
+VOX.draw(g, pin.map(([x, y, z, col]) => [x - 2, y - 2, z, col]), 30, 320, 330);
+</script></body></html>

@@ -80,8 +80,65 @@ export function distM(a, b) {
   const s = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(s));
 }
-export function rollRarity(rand = Math.random()) {
-  const r = rand * 100; let acc = 0;
-  for (const [k, v] of Object.entries(RARITY)) { acc += v.w; if (r < acc) return k; }
+// boost 0..1 — how unusual the thing in the photo is. Rare subjects shift the odds toward epic and legend.
+export function rollRarity(rand = Math.random(), boost = 0) {
+  const b = Math.max(0, Math.min(1, boost));
+  const w = { common: RARITY.common.w * (1 - .65 * b), rare: RARITY.rare.w * (1 + 1.2 * b), epic: RARITY.epic.w * (1 + 3 * b), legend: RARITY.legend.w * (1 + 7 * b) };
+  const total = Object.values(w).reduce((a, x) => a + x, 0);
+  let r = rand * total, acc = 0;
+  for (const [k, v] of Object.entries(w)) { acc += v; if (r < acc) return k; }
   return "common";
+}
+
+export const seeded = str => { let h = 2166136261; for (const c of String(str)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return () => { h = (h * 1664525 + 1013904223) >>> 0; return h / 4294967296; }; };
+
+/* ---------- what the camera saw ---------- */
+// [pattern over image-classifier labels, emoji, Russian name, how unusual 0..1]
+export const SUBJECTS = [
+  [/tabby|tiger cat|persian cat|siamese|egyptian cat/i, "🐈", "кот", .12],
+  [/lynx|cougar|leopard|snow leopard|jaguar|cheetah|^lion|tiger(?! cat)/i, "🐆", "большая кошка", .95],
+  [/terrier|retriever|shepherd|hound|poodle|pug|husky|malamute|corgi|chihuahua|spaniel|collie|dalmatian|beagle|bulldog|dachshund|labrador|samoyed|pomeranian|chow|dog/i, "🐕", "пёс", .1],
+  [/great grey owl|owl/i, "🦉", "сова", .9],
+  [/bald eagle|kite|vulture|eagle/i, "🦅", "хищная птица", .85],
+  [/peacock|flamingo|toucan|macaw|cockatoo|lorikeet|hummingbird|black swan|pelican|stork|spoonbill|crane|heron|bittern/i, "🦩", "редкая птица", .8],
+  [/goose|drake|duck|albatross|oystercatcher|redshank|dowitcher|turnstone|king penguin/i, "🦆", "водоплавающая птица", .4],
+  [/goldfinch|house finch|junco|bunting|robin|bulbul|jay|magpie|chickadee|ouzel|quail|partridge|hen|cock|jacamar|bird/i, "🐦", "птица", .3],
+  [/monarch|admiral|ringlet|cabbage butterfly|sulphur butterfly|lycaenid|butterfly/i, "🦋", "бабочка", .55],
+  [/ladybug|dragonfly|damselfly|bee|mantis|cricket|grasshopper|beetle|cicada/i, "🐞", "насекомое", .5],
+  [/lizard|gecko|iguana|chameleon|agama|skink|anole|turtle|terrapin|tortoise|snake|boa|python|viper/i, "🦎", "рептилия", .7],
+  [/hedgehog|porcupine|squirrel|fox|badger|weasel|mink|otter|hare|rabbit/i, "🦔", "дикий зверь", .75],
+  [/jellyfish|starfish|crab|lobster|sea lion|seal|dolphin|whale|shark|eel|coral/i, "🦀", "морской житель", .65],
+  [/agaric|mushroom|hen-of-the-woods|bolete|earthstar|gyromitra|stinkhorn/i, "🍄", "гриб", .6],
+  [/daisy|lady's slipper|rose hip|rapeseed|acorn|buckeye|pot|flowerpot|vase/i, "🌼", "цветок", .25],
+  [/model t|space shuttle|airship|parachute|cannon|steam locomotive|totem pole|submarine/i, "🛸", "невероятное", 1],
+  [/castle|palace|monastery|mosque|church|bell cote|obelisk|triumphal arch|dome|stupa|beacon|lighthouse|fountain|planetarium/i, "🏛️", "архитектура", .5],
+  [/mosaic|comic book|jigsaw|mask|totem|stained|fresco|window screen|chain mail/i, "🎨", "арт", .6],
+  [/convertible|sports car|limousine|jeep|tram|streetcar|trolleybus|cab|minibus|moped|motor scooter|bicycle/i, "🚗", "транспорт", .35],
+  [/seashore|sandbar|promontory|cliff|lakeside|alp|volcano|valley|geyser|coral reef/i, "🌊", "пейзаж", .3],
+  [/mailbox|street sign|traffic light|parking meter|manhole|pay-phone|umbrella|bench/i, "🪧", "городская штука", .2],
+];
+export function detectSubject(labels = []) {
+  for (const l of labels.slice(0, 3)) {
+    const name = String(l.label || "");
+    for (const [re, e, ru, s] of SUBJECTS) if (re.test(name)) return { e, ru, s, conf: Math.round((l.score || 0) * 100), raw: name };
+  }
+  return null;
+}
+
+/* ---------- card patterns ---------- */
+export const PATTERNS = {
+  confetti: { t: "Конфетти", d: "Эмодзи рассыпаны по карточке" },
+  waves:    { t: "Волна",    d: "Цветные волны с эмодзи" },
+  stars:    { t: "Созвездие", d: "Эмодзи светятся среди звёзд" },
+};
+const PALETTE = ["#FF8A3D", "#2EC4B6", "#4D8BFF", "#A66BFF", "#FF5C9A", "#5DBB63", "#FFD43B", "#FF5C6C"];
+const RARE_TINT = { common: "#9AA4B8", rare: "#4D8BFF", epic: "#A66BFF", legend: "#FFB020" };
+// Motif follows rarity (with a little luck), colour comes from the photo, emoji from what was seen.
+export function makePattern(rarity, emoji, tone, rand = Math.random) {
+  const base = { common: "confetti", rare: "waves", epic: "stars", legend: "stars" }[rarity] || "confetti";
+  const order = ["confetti", "waves", "stars"];
+  let m = base;
+  if (rarity !== "legend" && rand() < .18) m = order[Math.min(2, order.indexOf(base) + 1)];
+  const c1 = /^#[0-9a-f]{6}$/i.test(tone || "") ? tone : PALETTE[Math.floor(rand() * PALETTE.length)];
+  return { m, e: emoji, c1, c2: RARE_TINT[rarity] || "#9AA4B8", holo: rarity === "legend" };
 }
