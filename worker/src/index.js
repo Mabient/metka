@@ -8,11 +8,34 @@ const CAT_IDS = new Set(CATS.map(c => c.id));
 const ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const MAX_PHOTO = 1_600_000;
 
+// Tables are created on first use, so a fresh database needs no manual setup.
+const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, first_name TEXT, nick TEXT, avatar TEXT, color TEXT, status TEXT, bio TEXT, xp INTEGER NOT NULL DEFAULT 0, streak INTEGER NOT NULL DEFAULT 0, best_streak INTEGER NOT NULL DEFAULT 0, last_day TEXT, created_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS marks (code TEXT PRIMARY KEY, owner INTEGER NOT NULL, name TEXT NOT NULL, emoji TEXT NOT NULL, cat TEXT NOT NULL, story TEXT, place TEXT, lat REAL, lon REAL, photo_id TEXT, rarity TEXT NOT NULL, num INTEGER NOT NULL, created_at INTEGER NOT NULL, pattern TEXT, seen TEXT)`,
+  `CREATE INDEX IF NOT EXISTS marks_owner ON marks(owner, created_at)`,
+  `CREATE INDEX IF NOT EXISTS marks_time ON marks(created_at)`,
+  `CREATE INDEX IF NOT EXISTS marks_geo ON marks(lat, lon)`,
+  `CREATE TABLE IF NOT EXISTS photos (id TEXT PRIMARY KEY, mime TEXT NOT NULL, data BLOB NOT NULL, created_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS collects (user_id INTEGER NOT NULL, code TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (user_id, code))`,
+  `CREATE INDEX IF NOT EXISTS collects_code ON collects(code)`,
+  `CREATE TABLE IF NOT EXISTS reactions (user_id INTEGER NOT NULL, code TEXT NOT NULL, emoji TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (user_id, code))`,
+  `CREATE INDEX IF NOT EXISTS reactions_code ON reactions(code)`,
+  `CREATE TABLE IF NOT EXISTS xp_log (user_id INTEGER NOT NULL, amount INTEGER NOT NULL, reason TEXT, at INTEGER NOT NULL)`,
+  `CREATE INDEX IF NOT EXISTS xp_log_at ON xp_log(at, user_id)`,
+  `CREATE TABLE IF NOT EXISTS quest_claims (user_id INTEGER NOT NULL, day TEXT NOT NULL, PRIMARY KEY (user_id, day))`,
+];
+let schemaReady = null;
+const ensureSchema = env => (schemaReady ??= env.DB.batch(SCHEMA.map(q => env.DB.prepare(q))).catch(e => { schemaReady = null; throw e; }));
+// Webhook secret is derived from the bot token, so the token is the only secret to configure.
+const webhookSecret = async env => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("metka-webhook:" + env.BOT_TOKEN))).slice(0, 48);
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     if (req.method === "OPTIONS") return cors(new Response(null, { status: 204 }));
     try {
+      if (!env.BOT_TOKEN) return json({ error: "BOT_TOKEN is not set" }, 500);
+      await ensureSchema(env);
       if (url.pathname === "/tg" && req.method === "POST") return await onUpdate(req, env, ctx);
       if (url.pathname === "/setup") return await setup(url, env);
       if (url.pathname.startsWith("/img/")) return await image(url.pathname.slice(5), env);
@@ -362,7 +385,7 @@ async function image(id, env) {
 
 /* ---------------- bot ---------------- */
 async function onUpdate(req, env, ctx) {
-  if (req.headers.get("x-telegram-bot-api-secret-token") !== env.WEBHOOK_SECRET) return new Response("forbidden", { status: 403 });
+  if (req.headers.get("x-telegram-bot-api-secret-token") !== await webhookSecret(env)) return new Response("forbidden", { status: 403 });
   const upd = await req.json().catch(() => ({}));
   const msg = upd.message;
   if (msg?.text?.startsWith("/start")) {
@@ -385,9 +408,9 @@ async function onUpdate(req, env, ctx) {
 }
 
 async function setup(url, env) {
-  if (!env.ADMIN_KEY || url.searchParams.get("key") !== env.ADMIN_KEY) return new Response("forbidden", { status: 403 });
+  // Safe to call by anyone: it only points the bot at this server and refreshes its menu.
   const results = {
-    webhook: await tg(env, "setWebhook", { url: `${url.origin}/tg`, secret_token: env.WEBHOOK_SECRET, allowed_updates: ["message"] }),
+    webhook: await tg(env, "setWebhook", { url: `${url.origin}/tg`, secret_token: await webhookSecret(env), allowed_updates: ["message"] }),
     commands: await tg(env, "setMyCommands", { commands: [
       { command: "start", description: "Открыть Метку" }, { command: "top", description: "Топ недели" }, { command: "help", description: "Как играть" },
     ] }),

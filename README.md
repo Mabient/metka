@@ -23,17 +23,10 @@ python3 build.py https://metka-api.ladavladus.workers.dev Metkadetect_bot app &&
 ```
 
 ### 3. Сервер (Cloudflare)
-```bash
-cd worker
-npx wrangler login
-npx wrangler d1 create metka            # вставь database_id в wrangler.toml
-npx wrangler d1 execute metka --remote --file=schema.sql
-npx wrangler secret put BOT_TOKEN       # токен из BotFather
-npx wrangler secret put WEBHOOK_SECRET  # любая длинная случайная строка
-npx wrangler secret put ADMIN_KEY       # ещё одна случайная строка
-npx wrangler deploy
-```
-Потом открой в браузере `https://metka-api.<поддомен>.workers.dev/setup?key=<ADMIN_KEY>` — это подключит бота к серверу и поставит кнопку меню.
+1. Cloudflare → Storage & Databases → D1 → создать базу `metka`, вставить её ID в `worker/wrangler.toml`.
+2. Workers & Pages → Create → Import a repository → `Mabient/metka`, корневая папка `worker`.
+3. В настройках воркера добавить секрет `BOT_TOKEN` (токен из BotFather).
+4. Открыть `https://metka-api.<поддомен>.workers.dev/setup` — бот подключится к серверу. Таблицы создаются сами.
 
 ## Демо-режим
 Если открыть `webapp/dist/index.html` вне Telegram, приложение работает на демо-данных — удобно для проверки дизайна.

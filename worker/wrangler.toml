@@ -15,7 +15,7 @@ binding = "DB"
 database_name = "metka"
 database_id = "PASTE_DATABASE_ID"
 
-# Секреты (не хранятся в коде), задаются командами:
-#   npx wrangler secret put BOT_TOKEN
-#   npx wrangler secret put WEBHOOK_SECRET
-#   npx wrangler secret put ADMIN_KEY
+# Единственный секрет — токен бота. Задаётся в панели Cloudflare:
+#   Worker → Settings → Variables and Secrets → Add → Secret → BOT_TOKEN
+# Таблицы базы создаются сами при первом запросе.
+# После первого деплоя открыть https://metka-api.<поддомен>.workers.dev/setup — это подключит бота.
