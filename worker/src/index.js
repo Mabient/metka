@@ -2,6 +2,7 @@
 import {
   CATS, RARITY, STATUSES, REACTIONS, COLLECT_RADIUS_M, AVATARS, COLORS,
   level, questOf, dayKey, distM, rollRarity, unlockedStatuses, detectSubject, makePattern,
+  CASE_ITEM, rollCaseItem, caseStrip, DUP_XP, STRIP_WIN,
 } from "../../shared/rules.js";
 
 const CAT_IDS = new Set(CATS.map(c => c.id));
@@ -23,9 +24,27 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS xp_log (user_id INTEGER NOT NULL, amount INTEGER NOT NULL, reason TEXT, at INTEGER NOT NULL)`,
   `CREATE INDEX IF NOT EXISTS xp_log_at ON xp_log(at, user_id)`,
   `CREATE TABLE IF NOT EXISTS quest_claims (user_id INTEGER NOT NULL, day TEXT NOT NULL, PRIMARY KEY (user_id, day))`,
+  `CREATE TABLE IF NOT EXISTS user_cases (user_id INTEGER PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, last_daily TEXT)`,
+  `CREATE TABLE IF NOT EXISTS user_items (user_id INTEGER NOT NULL, item TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY (user_id, item))`,
 ];
 let schemaReady = null;
-const ensureSchema = env => (schemaReady ??= env.DB.batch(SCHEMA.map(q => env.DB.prepare(q))).catch(e => { schemaReady = null; throw e; }));
+const ensureSchema = env => (schemaReady ??= (async () => {
+  await env.DB.batch(SCHEMA.map(q => env.DB.prepare(q)));
+  try { await env.DB.prepare("ALTER TABLE users ADD COLUMN banner TEXT").run(); } catch {} // already there
+})().catch(e => { schemaReady = null; throw e; }));
+
+/* ---------- Telegram stickers (official animated duck set) ---------- */
+let stickerSet = null;
+async function sticker(env, chatId, ...emojis) {
+  try {
+    stickerSet ??= tg(env, "getStickerSet", { name: env.STICKER_SET || "UtyaDuck" }).then(r => { if (!r.ok) stickerSet = null; return r.ok ? r.result.stickers : []; });
+    const list = await stickerSet;
+    for (const e of emojis) {
+      const pick = list.find(s => s.emoji === e) || list.find(s => (s.emoji || "").includes(e));
+      if (pick) return await tg(env, "sendSticker", { chat_id: chatId, sticker: pick.file_id });
+    }
+  } catch {}
+}
 // Webhook secret is derived from the bot token, so the token is the only secret to configure.
 const webhookSecret = async env => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("metka-webhook:" + env.BOT_TOKEN))).slice(0, 48);
 
@@ -102,12 +121,20 @@ async function upsertUser(env, u) {
   ).bind(u.id, u.username || null, clean(u.first_name, 64), now).run();
   return env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(u.id).first();
 }
+async function addCases(env, userId, n) {
+  if (n > 0) await env.DB.prepare("INSERT INTO user_cases (user_id, count) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET count = count + excluded.count").bind(userId, n).run();
+}
+// Returns how many levels were gained; every new level gives a case.
 async function addXp(env, userId, amount, reason) {
-  if (!amount) return;
+  if (!amount) return 0;
+  const before = (await env.DB.prepare("SELECT xp FROM users WHERE id = ?").bind(userId).first("xp")) || 0;
+  const ups = level(before + amount) - level(before);
+  if (ups > 0) await addCases(env, userId, ups);
   await env.DB.batch([
     env.DB.prepare("UPDATE users SET xp = xp + ? WHERE id = ?").bind(amount, userId),
     env.DB.prepare("INSERT INTO xp_log (user_id, amount, reason, at) VALUES (?, ?, ?, ?)").bind(userId, amount, reason, Date.now()),
   ]);
+  return ups;
 }
 async function touchStreak(env, user) {
   const today = dayKey(), yesterday = dayKey(Date.now() - 86400e3);
@@ -145,7 +172,7 @@ async function weeklyRank(env, userId) {
 }
 const publicUser = u => u && ({
   id: u.id, nick: u.nick || u.first_name || "Без имени", avatar: u.avatar || "🦊", color: u.color || "sun",
-  status: u.status || "🌱", bio: u.bio || "", xp: u.xp || 0, level: level(u.xp || 0), streak: u.streak || 0, onboarded: !!u.nick,
+  status: u.status || "🌱", bio: u.bio || "", banner: u.banner || "", xp: u.xp || 0, level: level(u.xp || 0), streak: u.streak || 0, onboarded: !!u.nick,
 });
 
 /* ---------------- quests ---------------- */
@@ -162,8 +189,19 @@ async function maybeClaimQuest(env, userId) {
   const q = await questState(env, userId);
   if (q.done || q.progress < q.n) return 0;
   const r = await env.DB.prepare("INSERT OR IGNORE INTO quest_claims (user_id, day) VALUES (?, ?)").bind(userId, q.day).run();
-  if (r.meta?.changes) { await addXp(env, userId, q.xp, "quest"); return q.xp; }
+  if (r.meta?.changes) { await addXp(env, userId, q.xp, "quest"); await addCases(env, userId, 1); return q.xp; }
   return 0;
+}
+
+/* ---------------- cases & items ---------------- */
+async function ownedItems(env, userId) {
+  const r = await env.DB.prepare("SELECT item FROM user_items WHERE user_id = ? ORDER BY at").bind(userId).all();
+  return (r.results || []).map(x => x.item).filter(id => CASE_ITEM[id]);
+}
+const allStatuses = (s, items) => [...unlockedStatuses(s), ...items.map(id => CASE_ITEM[id]).filter(i => i.kind === "status").map(i => i.v)];
+async function caseState(env, userId) {
+  const r = await env.DB.prepare("SELECT count, last_daily FROM user_cases WHERE user_id = ?").bind(userId).first();
+  return { count: r?.count || 0, dailyReady: r?.last_daily !== dayKey() };
 }
 
 /* ---------------- marks ---------------- */
@@ -226,11 +264,15 @@ async function createMark(req, env, me, origin, ctx) {
     } catch (e) { if (!String(e).includes("UNIQUE") || i === 5) throw e; }
   }
   const xp = RARITY[rarity].xp + (photoId ? 5 : 0) + (lat !== null ? 5 : 0);
-  await addXp(env, me.id, xp, "create");
+  const levelUps = await addXp(env, me.id, xp, "create");
+  if (rarity === "legend" || rarity === "epic") ctx.waitUntil((async () => {
+    await sticker(env, me.id, rarity === "legend" ? "😱" : "😍", "🎉");
+    await tg(env, "sendMessage", { chat_id: me.id, text: `${rarity === "legend" ? "👑 ЛЕГЕНДА!" : "💎 Эпическая метка!"} «${emoji} ${name}» теперь твоя навсегда.`, reply_markup: { inline_keyboard: [[{ text: "Открыть метку", url: appLink(env, "m_" + code) }]] } });
+  })().catch(() => {}));
   await touchStreak(env, me);
   const questXp = await maybeClaimQuest(env, me.id);
   const row = await env.DB.prepare(`${MARK_SELECT} WHERE m.code = ?`).bind(code).first();
-  return json({ mark: shapeMark(row, origin), xp, questXp });
+  return json({ mark: shapeMark(row, origin), xp, questXp, levelUps });
 }
 
 async function markDetail(env, me, code, origin) {
@@ -269,11 +311,11 @@ async function collect(req, env, me, code, ctx) {
   await touchStreak(env, me);
   const questXp = await maybeClaimQuest(env, me.id);
   const who = me.nick || me.first_name || "Кто-то";
-  ctx.waitUntil(tg(env, "sendMessage", {
+  ctx.waitUntil(sticker(env, m.owner, "🎉", "🥳").then(() => tg(env, "sendMessage", {
     chat_id: m.owner,
     text: `${me.avatar || "🦊"} ${who} нашёл твою метку «${m.emoji} ${m.name}»! +3 XP`,
     reply_markup: { inline_keyboard: [[{ text: "Открыть метку", url: appLink(env, "m_" + code) }]] },
-  }).catch(() => {}));
+  })).catch(() => {}));
   return json({ ok: true, xp, questXp });
 }
 
@@ -301,19 +343,45 @@ async function api(req, url, env, ctx) {
 
   if (p === "/api/me" && M === "GET") {
     const s = await stats(env, me.id);
-    return json({ user: publicUser(me), stats: s, statuses: unlockedStatuses(s), quest: await questState(env, me.id) });
+    const items = await ownedItems(env, me.id);
+    return json({ user: publicUser(me), stats: s, statuses: allStatuses(s, items), items, cases: await caseState(env, me.id), quest: await questState(env, me.id) });
   }
   if (p === "/api/me" && M === "POST") {
     const b = await req.json().catch(() => ({}));
     const s = await stats(env, me.id);
     const nick = clean(b.nick, 24) || me.nick || clean(me.first_name, 24) || "Исследователь";
-    const avatar = AVATARS.includes(b.avatar) ? b.avatar : (me.avatar || "🦊");
+    const items = await ownedItems(env, me.id);
+    const ownedVals = kind => items.map(id => CASE_ITEM[id]).filter(i => i?.kind === kind).map(i => i.v);
+    const avatar = AVATARS.includes(b.avatar) || ownedVals("avatar").includes(b.avatar) ? b.avatar : (me.avatar || "🦊");
+    const banner = b.banner === "" || ownedVals("banner").includes(b.banner) ? (b.banner || null) : (me.banner || null);
     const color = COLORS.some(c => c.id === b.color) ? b.color : (me.color || "sun");
-    const status = unlockedStatuses(s).includes(b.status) ? b.status : (me.status || "🌱");
-    await env.DB.prepare("UPDATE users SET nick = ?, avatar = ?, color = ?, status = ?, bio = ? WHERE id = ?")
-      .bind(nick, avatar, color, status, clean(b.bio, 120), me.id).run();
+    const status = allStatuses(s, items).includes(b.status) ? b.status : (me.status || "🌱");
+    await env.DB.prepare("UPDATE users SET nick = ?, avatar = ?, color = ?, status = ?, bio = ?, banner = ? WHERE id = ?")
+      .bind(nick, avatar, color, status, clean(b.bio, 120), banner, me.id).run();
     const u = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(me.id).first();
     return json({ user: publicUser(u) });
+  }
+  if (p === "/api/cases/daily" && M === "POST") {
+    const today = dayKey();
+    const r = await env.DB.prepare("INSERT INTO user_cases (user_id, count, last_daily) VALUES (?1, 1, ?2) ON CONFLICT(user_id) DO UPDATE SET count = count + 1, last_daily = ?2 WHERE last_daily IS NULL OR last_daily != ?2").bind(me.id, today).run();
+    if (!r.meta?.changes) return json({ error: "already_claimed" }, 409);
+    return json({ cases: await caseState(env, me.id) });
+  }
+  if (p === "/api/cases/open" && M === "POST") {
+    const r = await env.DB.prepare("UPDATE user_cases SET count = count - 1 WHERE user_id = ? AND count > 0").bind(me.id).run();
+    if (!r.meta?.changes) return json({ error: "no_cases" }, 400);
+    const prize = rollCaseItem();
+    const owned = prize.kind !== "xp" && !!(await env.DB.prepare("SELECT 1 x FROM user_items WHERE user_id = ? AND item = ?").bind(me.id, prize.id).first("x"));
+    let xp = 0;
+    if (prize.kind === "xp") xp = prize.v;
+    else if (owned) xp = DUP_XP[prize.r];
+    else await env.DB.prepare("INSERT OR IGNORE INTO user_items (user_id, item, at) VALUES (?, ?, ?)").bind(me.id, prize.id, Date.now()).run();
+    const levelUps = await addXp(env, me.id, xp, "case");
+    if (prize.r === "legend" || prize.r === "epic") ctx.waitUntil((async () => {
+      await sticker(env, me.id, prize.r === "legend" ? "🥳" : "🤩", "🎉");
+      await tg(env, "sendMessage", { chat_id: me.id, text: `${prize.e} Из кейса выпало: ${prize.t}! ${prize.r === "legend" ? "Это ЛЕГЕНДА 👑" : "Эпическая награда 💎"}` });
+    })().catch(() => {}));
+    return json({ prize: prize.id, strip: caseStrip(prize), win: STRIP_WIN, duplicate: owned, xp, levelUps, cases: await caseState(env, me.id) });
   }
   if (p === "/api/feed" && M === "GET") {
     const sort = url.searchParams.get("sort") || "new";
@@ -392,15 +460,17 @@ async function onUpdate(req, env, ctx) {
     const payload = msg.text.split(" ")[1] || "";
     const code = payload.startsWith("m_") ? payload.slice(2).toUpperCase() : "";
     const url = env.WEBAPP_URL + (code ? `?m=${code}` : "");
-    ctx.waitUntil(tg(env, "sendMessage", {
+    ctx.waitUntil(sticker(env, msg.chat.id, code ? "👀" : "👋", "🎉").then(() => tg(env, "sendMessage", {
       chat_id: msg.chat.id,
       text: code
         ? "📍 Тебе прислали метку! Открой её, посмотри карточку и построй маршрут."
         : "📍 Метка — живая коллекция города.\n\nФоткай котов, птиц, деревья, муралы и странные штуки. Давай им имена, ставь метки на карте и собирай чужие находки на прогулках.\n\nРедкость выпадает случайно: шанс на легенду 1% 👑",
       reply_markup: { inline_keyboard: [[{ text: code ? "Открыть метку" : "Открыть Метку", web_app: { url } }]] },
-    }));
+    })));
   } else if (msg?.text === "/top") {
     ctx.waitUntil(tg(env, "sendMessage", { chat_id: msg.chat.id, text: "🏆 Топ недели — в приложении", reply_markup: { inline_keyboard: [[{ text: "Открыть топ", web_app: { url: env.WEBAPP_URL + "?tab=top" } }]] } }));
+  } else if (msg?.text === "/case" || msg?.text === "/cases") {
+    ctx.waitUntil(sticker(env, msg.chat.id, "🎁", "🎉").then(() => tg(env, "sendMessage", { chat_id: msg.chat.id, text: "🎁 Каждый день — бесплатный кейс. Ещё кейсы дают за новый уровень и задание дня.", reply_markup: { inline_keyboard: [[{ text: "Открыть кейсы", web_app: { url: env.WEBAPP_URL + "?tab=cases" } }]] } })));
   } else if (msg?.text === "/help") {
     ctx.waitUntil(tg(env, "sendMessage", { chat_id: msg.chat.id, text: "Как играть:\n1. Нажми «+» и сфоткай находку\n2. Дай имя и эмодзи — выпадет редкость\n3. Покажи QR другу или найди чужие метки на карте\n4. Подойди к чужой метке ближе 80 м и нажми «Собрать»\n\nЗа всё дают XP, уровни и эмодзи-статусы." }));
   }
@@ -412,7 +482,7 @@ async function setup(url, env) {
   const results = {
     webhook: await tg(env, "setWebhook", { url: `${url.origin}/tg`, secret_token: await webhookSecret(env), allowed_updates: ["message"] }),
     commands: await tg(env, "setMyCommands", { commands: [
-      { command: "start", description: "Открыть Метку" }, { command: "top", description: "Топ недели" }, { command: "help", description: "Как играть" },
+      { command: "start", description: "Открыть Метку" }, { command: "top", description: "Топ недели" }, { command: "case", description: "Кейсы" }, { command: "help", description: "Как играть" },
     ] }),
     menu: await tg(env, "setChatMenuButton", { menu_button: { type: "web_app", text: "Метка", web_app: { url: env.WEBAPP_URL } } }),
     description: await tg(env, "setMyDescription", { description: "📍 Живая коллекция города: ставь метки на котов, птиц, деревья и муралы, собирай чужие находки на прогулках, качай уровень и открывай эмодзи-статусы." }),

@@ -142,3 +142,39 @@ export function makePattern(rarity, emoji, tone, rand = Math.random) {
   const c1 = /^#[0-9a-f]{6}$/i.test(tone || "") ? tone : PALETTE[Math.floor(rand() * PALETTE.length)];
   return { m, e: emoji, c1, c2: RARE_TINT[rarity] || "#9AA4B8", holo: rarity === "legend" };
 }
+
+/* ---------- cases ---------- */
+// kind: xp | avatar | status | banner. Duplicates of owned items turn into XP.
+export const CASE_ITEMS = [
+  { id: "xp25",   kind: "xp",     v: 25,  r: "common", t: "+25 XP",            e: "✨" },
+  { id: "xp60",   kind: "xp",     v: 60,  r: "rare",   t: "+60 XP",            e: "💫" },
+  { id: "xp150",  kind: "xp",     v: 150, r: "epic",   t: "+150 XP",           e: "🌟" },
+  { id: "av_peacock", kind: "avatar", v: "🦚", r: "rare",   t: "Аватар «Павлин»",   e: "🦚" },
+  { id: "av_jelly",   kind: "avatar", v: "🪼", r: "rare",   t: "Аватар «Медуза»",   e: "🪼" },
+  { id: "av_shark",   kind: "avatar", v: "🦈", r: "rare",   t: "Аватар «Акула»",    e: "🦈" },
+  { id: "av_wolf",    kind: "avatar", v: "🐺", r: "common", t: "Аватар «Волк»",     e: "🐺" },
+  { id: "av_dragon",  kind: "avatar", v: "🐉", r: "epic",   t: "Аватар «Дракон»",   e: "🐉" },
+  { id: "av_eagle",   kind: "avatar", v: "🦅", r: "epic",   t: "Аватар «Орёл»",     e: "🦅" },
+  { id: "av_fairy",   kind: "avatar", v: "🧚", r: "legend", t: "Аватар «Фея»",      e: "🧚" },
+  { id: "st_clover",  kind: "status", v: "🍀", r: "rare",   t: "Статус «Клевер»",   e: "🍀" },
+  { id: "st_rainbow", kind: "status", v: "🌈", r: "epic",   t: "Статус «Радуга»",   e: "🌈" },
+  { id: "st_gem",     kind: "status", v: "💠", r: "legend", t: "Статус «Бриллиант»", e: "💠" },
+  { id: "bn_neon",    kind: "banner", v: "neon",   r: "rare",   t: "Фон профиля «Неон»",           e: "🌃" },
+  { id: "bn_aurora",  kind: "banner", v: "aurora", r: "epic",   t: "Фон профиля «Северное сияние»", e: "🌌" },
+  { id: "bn_gold",    kind: "banner", v: "gold",   r: "legend", t: "Фон профиля «Золото»",          e: "🏆" },
+];
+export const CASE_ITEM = Object.fromEntries(CASE_ITEMS.map(i => [i.id, i]));
+const CASE_W = { common: 60, rare: 28, epic: 10, legend: 2 };
+export function rollCaseItem(rand = Math.random) {
+  const pool = CASE_ITEMS.map(i => [i, CASE_W[i.r] / CASE_ITEMS.filter(x => x.r === i.r).length]);
+  const total = pool.reduce((a, [, w]) => a + w, 0);
+  let r = rand() * total;
+  for (const [i, w] of pool) { if ((r -= w) < 0) return i; }
+  return CASE_ITEMS[0];
+}
+export const DUP_XP = { common: 15, rare: 40, epic: 90, legend: 250 };
+// A strip of items for the roulette, with the prize at a fixed slot.
+export const STRIP_LEN = 44, STRIP_WIN = 37;
+export function caseStrip(prize, rand = Math.random) {
+  return Array.from({ length: STRIP_LEN }, (_, i) => i === STRIP_WIN ? prize.id : rollCaseItem(rand).id);
+}

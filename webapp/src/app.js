@@ -225,7 +225,7 @@ const MOCK = (() => {
       marks: seed.map((s, i) => ({ code: s[0], owner: s[1], name: s[2], emoji: s[3], cat: s[4], rarity: s[5], lat: s[6], lon: s[7], place: s[8], story: s[9], num: i + 1, at: now - (i * 5 + 2) * H1, photo: null })),
       reactions: { BRSK7: { 2: "❤️", 3: "🔥", 4: "😹", 5: "❤️" }, PLTN9: { 2: "👑", 3: "🤯", 5: "👑" }, SUNST: { 2: "❤️", 6: "🔥" }, CHG42: { 2: "😹" } },
       collects: { BRSK7: { 3: now - 20 * H1, 5: now - 9 * H1 }, PLTN9: { 2: now - 30 * H1 }, CHG42: { 2: now - 6 * H1 } },
-      xplog: [], claims: {},
+      xplog: [], claims: {}, cases: { count: 1, last_daily: null }, items: [],
     };
   }
   let D;
@@ -233,13 +233,14 @@ const MOCK = (() => {
   if (!D) D = fresh();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {} };
   const user = id => id === 1 ? D.me : D.users[id];
-  const pub = u => ({ id: u.id, nick: u.nick || "Ты", avatar: u.avatar, color: u.color, status: u.status, bio: u.bio || "", xp: u.xp, level: level(u.xp), streak: u.streak, onboarded: !!u.nick });
+  const pub = u => ({ id: u.id, nick: u.nick || "Ты", avatar: u.avatar, color: u.color, status: u.status, bio: u.bio || "", banner: u.banner || "", xp: u.xp, level: level(u.xp), streak: u.streak, onboarded: !!u.nick });
   const shape = m => {
     const o = user(m.owner);
     return { ...m, reacts: Object.keys(D.reactions[m.code] || {}).length, collects: Object.keys(D.collects[m.code] || {}).length,
       owner: { id: o.id, nick: o.nick || "Ты", avatar: o.avatar, color: o.color, status: o.status, level: level(o.xp) } };
   };
-  const addXp = (id, n, reason) => { user(id).xp += n; D.xplog.push({ id, n, at: Date.now(), reason }); };
+  const addXp = (id, n, reason) => { const before = user(id).xp; user(id).xp += n; D.xplog.push({ id, n, at: Date.now(), reason }); const ups = level(before + n) - level(before); if (id === 1 && ups > 0) { D.cases = D.cases || { count: 0 }; D.cases.count += ups; } return ups; };
+  const caseState = () => { D.cases = D.cases || { count: 0, last_daily: null }; D.items = D.items || []; return { count: D.cases.count, dailyReady: D.cases.last_daily !== dayKey() }; };
   const touch = () => { const t = dayKey(), y = dayKey(Date.now() - 86400e3); if (D.me.last_day === t) return; D.me.streak = D.me.last_day === y ? D.me.streak + 1 : 1; D.me.best_streak = Math.max(D.me.best_streak, D.me.streak); D.me.last_day = t; };
   function stats(id) {
     const own = D.marks.filter(m => m.owner === id), cats = {}, rar = {};
@@ -262,20 +263,32 @@ const MOCK = (() => {
       : Object.values(D.collects).filter(c => c[1] && c[1] >= start).length;
     return { ...q, progress: Math.min(progress, q.n), done: !!D.claims[q.day] };
   }
-  const claim = () => { const q = quest(); if (!q.done && q.progress >= q.n) { D.claims[q.day] = 1; addXp(1, q.xp, "quest"); return q.xp; } return 0; };
+  const claim = () => { const q = quest(); if (!q.done && q.progress >= q.n) { D.claims[q.day] = 1; addXp(1, q.xp, "quest"); caseState(); D.cases.count++; return q.xp; } return 0; };
   const err = (e, extra = {}) => { throw Object.assign(new Error(e), { error: e, ...extra }); };
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
   async function handle(path, { method = "GET", body } = {}) {
     await wait(120 + Math.random() * 160);
     const u = new URL(path, "https://x"), p = u.pathname, q = u.searchParams;
-    if (p === "/api/me" && method === "GET") { const s = stats(1); return { user: pub(D.me), stats: s, statuses: unlockedStatuses(s), quest: quest() }; }
+    if (p === "/api/me" && method === "GET") { const s = stats(1), cs = caseState(); return { user: pub(D.me), stats: s, statuses: [...unlockedStatuses(s), ...D.items.map(id => CASE_ITEM[id]).filter(i => i.kind === "status").map(i => i.v)], items: D.items, cases: cs, quest: quest() }; }
+    if (p === "/api/cases/daily") { const cs = caseState(); if (!cs.dailyReady) err("already_claimed"); D.cases.count++; D.cases.last_daily = dayKey(); save(); return { cases: caseState() }; }
+    if (p === "/api/cases/open") {
+      caseState(); if (D.cases.count < 1) err("no_cases"); D.cases.count--;
+      const prize = rollCaseItem(), dup = prize.kind !== "xp" && D.items.includes(prize.id);
+      const xp = prize.kind === "xp" ? prize.v : dup ? DUP_XP[prize.r] : 0;
+      if (prize.kind !== "xp" && !dup) D.items.push(prize.id);
+      const levelUps = addXp(1, xp, "case"); save();
+      return { prize: prize.id, strip: caseStrip(prize), win: STRIP_WIN, duplicate: dup, xp, levelUps, cases: caseState() };
+    }
     if (p === "/api/me" && method === "POST") {
       const s = stats(1);
       D.me.nick = String(body.nick || "").trim().slice(0, 24) || D.me.nick || "Исследователь";
       if (AVATARS.includes(body.avatar)) D.me.avatar = body.avatar;
       if (COLOR[body.color]) D.me.color = body.color;
-      if (unlockedStatuses(s).includes(body.status)) D.me.status = body.status;
+      const own = k => (D.items || []).map(id => CASE_ITEM[id]).filter(i => i.kind === k).map(i => i.v);
+      if (unlockedStatuses(s).includes(body.status) || own("status").includes(body.status)) D.me.status = body.status;
+      if (own("avatar").includes(body.avatar)) D.me.avatar = body.avatar;
+      if (body.banner === "" || own("banner").includes(body.banner)) D.me.banner = body.banner || "";
       D.me.bio = String(body.bio || "").slice(0, 120); save(); return { user: pub(D.me) };
     }
     if (p === "/api/feed") {
@@ -298,9 +311,9 @@ const MOCK = (() => {
       m.pattern = makePattern(m.rarity, m.emoji, f.get("tone"));
       D.marks.unshift(m);
       const xp = RARITY[m.rarity].xp + (photo ? 5 : 0) + (lat !== null ? 5 : 0);
-      addXp(1, xp, "create"); touch(); const questXp = claim();
+      const levelUps = addXp(1, xp, "create"); touch(); const questXp = claim();
       try { save(); } catch { m.photo = null; save(); }
-      void today; return { mark: shape(m), xp, questXp };
+      void today; return { mark: shape(m), xp, questXp, levelUps };
     }
     const mm = p.match(/^\/api\/marks\/([A-Z0-9]+)(?:\/(collect|react))?$/);
     if (mm) {
@@ -351,7 +364,7 @@ const MOCK = (() => {
 })();
 
 /* ================= state & navigation ================= */
-const S = { me: null, stats: null, statuses: [], quest: null, tab: "feed", feedSort: "new", feedCat: "", topPeriod: "week", stack: [] };
+const S = { me: null, stats: null, statuses: [], quest: null, items: [], cases: { count: 0, dailyReady: false }, tab: "feed", feedSort: "new", feedCat: "", topPeriod: "week", stack: [] };
 const view = $("#view");
 
 function pushLayer(el, onClose) {
@@ -382,7 +395,7 @@ $("#fab").addEventListener("click", () => { H.heavy(); openCreate(); });
 async function refreshMe() {
   const r = await api("/api/me");
   const oldLevel = S.me?.level, oldStatuses = new Set(S.statuses);
-  Object.assign(S, { me: r.user, stats: r.stats, statuses: r.statuses, quest: r.quest });
+  Object.assign(S, { me: r.user, stats: r.stats, statuses: r.statuses, quest: r.quest, items: r.items || [], cases: r.cases || { count: 0, dailyReady: false } });
   const fresh = S.statuses.filter(e => oldStatuses.size && !oldStatuses.has(e));
   return { levelUp: oldLevel && r.user.level > oldLevel ? r.user.level : 0, newStatuses: fresh };
 }
@@ -402,11 +415,13 @@ function topBar() {
     <div class="logo">${vpin()}Метка</div>
     ${DEMO ? `<span class="demo-flag">демо</span>` : ""}
     <span class="sp"></span>
+    <button class="pill casepill ${S.cases.dailyReady ? "ready" : ""}" data-cases aria-label="Кейсы: ${S.cases.count}">🎁 <span class="mono">${S.cases.count}</span></button>
     ${u.streak ? `<span class="pill" title="Серия дней">🔥 <span class="mono">${u.streak}</span></span>` : ""}
     <button class="me-chip" id="mechip" aria-label="Мой профиль, уровень ${lv}">${avatar(u, 34)}<span class="lv"><b>Ур. ${lv}</b><span class="xpbar"><i style="width:${pct}%"></i></span></span></button>
   </div>`;
 }
 function bindTopBar() { $("#mechip")?.addEventListener("click", () => setTab("profile")); }
+document.addEventListener("click", e => { if (e.target.closest("[data-cases]")) { H.heavy(); openCases(); } });
 
 /* ================= feed ================= */
 function tile(m) {
@@ -425,7 +440,7 @@ function questCard() {
       <div class="qprog"><div class="t"><i style="width:${pct}%"></i></div><span class="mono">${q.progress}/${q.n}</span><span>+${q.xp} XP</span></div></div></section>`;
 }
 async function renderFeed() {
-  view.innerHTML = `<div class="scroll"><div class="page">${topBar()}${dioramaHTML(`<small>Ялта · сегодня</small><b>Что найдём, ${esc(S.me.nick)}?</b><span>Коты, птицы, муралы и странности ждут своих первооткрывателей</span>`)}${questCard()}
+  view.innerHTML = `<div class="scroll"><div class="page">${topBar()}${dioramaHTML(`<small>Ялта · сегодня</small><b>Что найдём, ${esc(S.me.nick)}?</b><span>Коты, птицы, муралы и странности ждут своих первооткрывателей</span>`)}${S.cases.dailyReady ? `<button class="dailycase" data-cases><img class="vsticker bounce" src="${VA.crate()}" alt=""><span><small>Подарок дня</small><b>Бесплатный кейс ждёт тебя</b><span>Открой и выбей аватар, статус или фон профиля</span></span></button>` : ""}${questCard()}
     <div class="seg" role="group" aria-label="Сортировка">
       ${[["new", "Новые"], ["near", "Рядом"], ["top", "Любимые"]].map(([k, t]) => `<button data-sort="${k}" aria-pressed="${S.feedSort === k}">${t}</button>`).join("")}
     </div>
@@ -581,14 +596,14 @@ function profileHTML(d, isMe) {
   const R = 44, L = 2 * Math.PI * R;
   const st = STATUSES.find(x => x.e === u.status);
   const cc = (COLOR[u.color] || COLORS[0]).a;
-  return `<section class="hero" style="${cvars(u.color)}"><img class="hcr a" data-depth="0.18" src="${VA.crystal(cc)}" alt=""><img class="hcr b" data-depth="0.34" src="${VA.crystal(RCOL.legend)}" alt="">
+  return `<section class="hero ${u.banner ? "bn-" + esc(u.banner) : ""}" style="${cvars(u.color)}"><img class="hcr a" data-depth="0.18" src="${VA.crystal(cc)}" alt=""><img class="hcr b" data-depth="0.34" src="${VA.crystal(RCOL.legend)}" alt="">
     <div class="hero-row">
       <div class="ring"><svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--s3)" stroke-width="5"/><circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L * (1 - pct)}"/></svg>${avatar(u, 78, false)}<span class="lvl">Ур. ${lv}</span></div>
       <div style="min-width:0"><h2>${esc(u.nick)}</h2><span class="stt">${esc(u.status)} ${esc(st?.t || "")}</span></div>
     </div>
     ${u.bio ? `<p class="bio">${esc(u.bio)}</p>` : ""}
     <div class="xpline"><div style="display:flex;justify-content:space-between"><span>Опыт</span><span class="mono">${u.xp} / ${c} XP</span></div><div class="t"><i style="width:${pct * 100}%"></i></div></div>
-    ${isMe ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn dark" id="editP">Изменить</button><button class="btn soft" id="pickS">Статусы ${S.statuses.length}/${STATUSES.length}</button></div>` : ""}
+    ${isMe ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn dark" id="editP">Изменить</button><button class="btn soft" id="pickS">Статусы ${S.statuses.length}</button></div><button class="btn pri w" data-cases>🎁 Кейсы и инвентарь${S.cases.count ? ` · ${S.cases.count}` : ""}</button>` : ""}
   </section>
   <div class="stats">
     <div class="stat"><b>${s.created}</b><span>меток</span></div>
@@ -642,7 +657,7 @@ function openEditProfile(onboarding = false) {
     ${onboarding ? `${dioramaHTML(`<span class="logo" style="color:#fff">${vpin()}Метка</span>`, "tall")}<div><h1>Создай свой аккаунт исследователя</h1></div><p class="lead">Выбери аватар и цвет. Позже откроешь эмодзи-статусы за находки.</p>` : `<div class="grab"></div><div class="sh-h"><h2>Профиль</h2><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>`}
     <span class="av avbig" id="avp" style="${onboarding ? "" : "justify-self:center;--sz:96px;"}${cvars(draft.color)}">${esc(draft.avatar)}</span>
     <div class="field"><label class="lbl" for="p-nick">Ник</label><input class="inp" id="p-nick" maxlength="24" placeholder="Как тебя называть" value="${esc(draft.nick)}" autocomplete="off"></div>
-    <div class="field"><span class="lbl">Аватар</span><div class="emg">${AVATARS.map(a => `<button class="em" data-av="${a}" aria-pressed="${a === draft.avatar}">${a}</button>`).join("")}</div></div>
+    <div class="field"><span class="lbl">Аватар</span><div class="emg">${[...S.items.map(id => CASE_ITEM[id]).filter(i => i?.kind === "avatar").map(i => i.v), ...AVATARS].map(a => `<button class="em ${AVATARS.includes(a) ? "" : "excl"}" data-av="${a}" aria-pressed="${a === draft.avatar}">${a}</button>`).join("")}</div></div>
     <div class="field"><span class="lbl">Цвет</span><div class="swatches">${COLORS.map(c => `<button class="sw" data-col="${c.id}" aria-pressed="${c.id === draft.color}" aria-label="${c.t}" style="${cvars(c.id)}"></button>`).join("")}</div></div>
     ${onboarding ? "" : `<div class="field"><label class="lbl" for="p-bio">О себе</label><textarea class="inp" id="p-bio" maxlength="120" placeholder="Что ищешь в городе?">${esc(draft.bio)}</textarea></div>`}
     <button class="btn pri w" id="p-save">${onboarding ? "Начать охоту" : "Сохранить"}</button>`;
@@ -657,7 +672,7 @@ function openEditProfile(onboarding = false) {
     if (!nick) { H.err(); $("#p-nick", el).focus(); toast("Придумай ник"); return; }
     $("#p-save", el).disabled = true;
     try {
-      await api("/api/me", { method: "POST", body: { nick, avatar: draft.avatar, color: draft.color, bio: $("#p-bio", el)?.value || "", status: S.me.status } });
+      await api("/api/me", { method: "POST", body: { nick, avatar: draft.avatar, color: draft.color, bio: $("#p-bio", el)?.value || "", status: S.me.status, banner: S.me.banner || "" } });
       await refreshMe(); H.ok();
       if (onboarding) { el.remove(); burst("rare"); chime(1); toast(`Привет, ${nick}! Держи статус 🌱`); boot2(); }
       else { popLayer(el); toast("Профиль сохранён"); renderTab(); }
@@ -669,13 +684,13 @@ function openStatuses() {
   const s = S.stats;
   el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="sh-h"><h2>Эмодзи-статусы</h2><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
     <p class="hint" style="margin:-6px 0 14px">Статус виден рядом с аватаром везде: в ленте, топе и на карточках. Новые открываются за находки.</p>
-    <div class="lb">${STATUSES.map(x => { const ok = x.ok(s); return `<button class="lrow ${S.me.status === x.e ? "me" : ""}" data-st="${x.e}" ${ok ? "" : "disabled"} style="${ok ? "" : "opacity:.5"}"><span style="font-size:28px">${x.e}</span><span class="t"><b>${x.t}</b><span>${ok ? (S.me.status === x.e ? "Выбран" : "Открыт · нажми, чтобы выбрать") : "🔒 " + x.d}</span></span></button>`; }).join("")}</div></div>`;
+    <div class="lb">${[...CASE_ITEMS.filter(i => i.kind === "status").map(i => ({ e: i.v, t: i.t.replace("Статус ", "").replace(/[«»]/g, ""), d: "Выпадает из кейса", ok: () => S.items.includes(i.id) })), ...STATUSES].map(x => { const ok = x.ok(s); return `<button class="lrow ${S.me.status === x.e ? "me" : ""}" data-st="${x.e}" ${ok ? "" : "disabled"} style="${ok ? "" : "opacity:.5"}"><span style="font-size:28px">${x.e}</span><span class="t"><b>${x.t}</b><span>${ok ? (S.me.status === x.e ? "Выбран" : "Открыт · нажми, чтобы выбрать") : "🔒 " + x.d}</span></span></button>`; }).join("")}</div></div>`;
   pushLayer(el);
   el.addEventListener("click", async e => {
     if (e.target === el || e.target.closest("[data-close]")) return popLayer(el);
     const b = e.target.closest("[data-st]"); if (!b || b.disabled) return;
     H.ok();
-    try { await api("/api/me", { method: "POST", body: { ...S.me, status: b.dataset.st } }); await refreshMe(); popLayer(el); toast(`Статус ${b.dataset.st} установлен`); renderTab(); } catch { toast("Не получилось"); }
+    try { await api("/api/me", { method: "POST", body: { ...S.me, banner: S.me.banner || "", status: b.dataset.st } }); await refreshMe(); popLayer(el); toast(`Статус ${b.dataset.st} установлен`); renderTab(); } catch { toast("Не получилось"); }
   });
 }
 
@@ -742,6 +757,7 @@ function openCreate() {
       const r = await api("/api/marks", { method: "POST", body: fd });
       const up = await refreshMe();
       popLayer(el); reveal(r, up);
+      if (r.levelUps) setTimeout(() => stickerPop(VA.crystal("#FFD43B"), `Новый уровень! +${r.levelUps} 🎁`), 2600);
     } catch (e) {
       H.err(); btn.disabled = false; btn.textContent = "Поставить метку";
       toast({ daily_limit: "На сегодня лимит меток исчерпан", photo_too_large: "Фото слишком большое" }[e.error] || "Не получилось сохранить. Проверь интернет.");
@@ -859,11 +875,104 @@ function showQr(m) {
   el.addEventListener("click", e => { if (e.target === el || e.target.id === "qr-ok") popLayer(el); });
 }
 
+/* ================= animated voxel stickers ================= */
+function stickerPop(src, text) {
+  const el = document.createElement("div"); el.className = "spop";
+  el.innerHTML = `<img class="vsticker wiggle" src="${src}" alt=""><b>${esc(text)}</b>`;
+  document.body.appendChild(el); H.ok(); chime(1);
+  setTimeout(() => el.classList.add("out"), 2600); setTimeout(() => el.remove(), 3100);
+}
+
+/* ================= cases ================= */
+const itemCard = (id, cls = "") => { const i = CASE_ITEM[id]; return `<div class="citem r-${i.r} ${cls}" data-item="${id}"><span class="ce">${i.e}</span><span class="ct">${esc(i.t)}</span></div>`; };
+function openCases() {
+  if (S.stack.some(x => x.el.classList.contains("cases-ov"))) return;
+  const el = document.createElement("div"); el.className = "full cases-ov";
+  pushLayer(el);
+  const draw = () => {
+    const c = S.cases, owned = new Set(S.items);
+    el.innerHTML = `<div class="det">
+      <div class="det-top"><span class="lbl">Кейсы</span><button class="x" data-close aria-label="Закрыть">${ICON.x}</button></div>
+      <section class="casehero">
+        <img class="vsticker float" src="${VA.crate()}" alt="">
+        <div><b class="cnum mono">${c.count}</b><span>${plural(c.count, "кейс", "кейса", "кейсов")} у тебя</span></div>
+      </section>
+      <div class="roul" id="roul" hidden><div class="rtrack" id="rtrack"></div><div class="rmark"></div></div>
+      <div id="rwin"></div>
+      <div class="acts">
+        ${c.dailyReady ? `<button class="btn teal span" id="c-daily">🎁 Забрать бесплатный кейс дня</button>` : `<div class="btn soft span" style="pointer-events:none">Следующий бесплатный кейс завтра</div>`}
+        <button class="btn pri span" id="c-open" ${c.count ? "" : "disabled"}>Открыть кейс</button>
+      </div>
+      <p class="hint">Кейсы дают каждый день, за каждый новый уровень и за задание дня. Если выпадет то, что уже есть, получишь опыт.</p>
+      <h3 class="sec">Что может выпасть</h3>
+      <div class="odds">${[["common", 60], ["rare", 28], ["epic", 10], ["legend", 2]].map(([r, p]) => `<span class="r-${r}"><i></i>${RARITY[r].t} ${p}%</span>`).join("")}</div>
+      <div class="cgrid">${CASE_ITEMS.map(i => itemCard(i.id, owned.has(i.id) ? "own" : "")).join("")}</div>
+      <h3 class="sec">Мой инвентарь · ${S.items.length}</h3>
+      ${S.items.length ? `<div class="cgrid">${S.items.map(id => itemCard(id, "own wearable")).join("")}</div>` : `<p class="hint">Пока пусто. Открой первый кейс!</p>`}
+    </div>`;
+    $("[data-close]", el).onclick = () => popLayer(el);
+    $("#c-daily", el)?.addEventListener("click", async () => {
+      try { const r = await api("/api/cases/daily", { method: "POST" }); S.cases = r.cases; H.ok(); stickerPop(VA.crate(), "Кейс дня получен!"); draw(); renderTab(); }
+      catch { toast("Кейс дня уже забран"); }
+    });
+    $("#c-open", el)?.addEventListener("click", () => spin());
+    $$(".wearable", el).forEach(card => card.addEventListener("click", () => wear(card.dataset.item)));
+  };
+  async function spin() {
+    const btn = $("#c-open", el); btn.disabled = true; btn.textContent = "Крутим…"; $("#c-daily", el)?.setAttribute("disabled", "");
+    let r;
+    try { r = await api("/api/cases/open", { method: "POST" }); }
+    catch { btn.disabled = false; btn.textContent = "Открыть кейс"; toast("Нет кейсов"); return; }
+    const roul = $("#roul", el), track = $("#rtrack", el); roul.hidden = false; $("#rwin", el).innerHTML = "";
+    track.innerHTML = r.strip.map(id => itemCard(id)).join("");
+    const card = track.firstElementChild, step = card.getBoundingClientRect().width + 10;
+    const W = roul.clientWidth, target = r.win * step + step / 2 - W / 2 + (Math.random() - .5) * step * .6;
+    const D = matchMedia("(prefers-reduced-motion: reduce)").matches ? 300 : 6200, t0 = performance.now();
+    let lastIdx = -1;
+    await new Promise(done => {
+      const frame = t => {
+        const k = Math.min(1, (t - t0) / D), e = 1 - (1 - k) ** 4, x = target * e;
+        track.style.transform = `translate3d(${-x}px,0,0)`;
+        const idx = Math.floor((x + W / 2) / step);
+        if (idx !== lastIdx) { lastIdx = idx; H.pick(); tick(); }
+        k < 1 ? requestAnimationFrame(frame) : done();
+      };
+      requestAnimationFrame(frame);
+    });
+    const prize = CASE_ITEM[r.prize];
+    track.children[r.win]?.classList.add("won");
+    prize.r === "legend" ? H.seq(4) : prize.r === "epic" ? H.seq(2) : H.ok();
+    chime({ common: 0, rare: 1, epic: 2, legend: 2 }[prize.r]); if (prize.r !== "common") burst(prize.r);
+    await refreshMe();
+    const wearable = prize.kind !== "xp" && !r.duplicate;
+    $("#rwin", el).innerHTML = `<div class="win r-${prize.r}"><span class="we bounce">${prize.e}</span><div><small>${RARITY[prize.r].t}</small><b>${esc(prize.t)}</b><span>${r.duplicate ? `Уже было в инвентаре → +${r.xp} XP` : prize.kind === "xp" ? "Опыт начислен" : "Добавлено в инвентарь"}${r.levelUps ? ` · новый уровень! +${r.levelUps} 🎁` : ""}</span></div>${wearable ? `<button class="btn pri" id="c-wear">Надеть</button>` : ""}</div>`;
+    $("#c-wear", el)?.addEventListener("click", () => wear(prize.id));
+    const keep = $("#rwin", el).innerHTML;
+    setTimeout(() => { if (!el.isConnected) return; const roulHTML = roul.outerHTML; draw(); $("#roul", el).outerHTML = roulHTML; $("#rwin", el).innerHTML = keep; $("#c-wear", el)?.addEventListener("click", () => wear(prize.id)); }, 1400);
+  }
+  async function wear(id) {
+    const i = CASE_ITEM[id]; if (!i || i.kind === "xp") return;
+    const body = { ...S.me, banner: S.me.banner || "" };
+    if (i.kind === "avatar") body.avatar = i.v; if (i.kind === "status") body.status = i.v; if (i.kind === "banner") body.banner = i.v;
+    try { await api("/api/me", { method: "POST", body }); await refreshMe(); H.ok(); stickerPop(VA.crystal({ common: "#9AA4B8", rare: "#4D8BFF", epic: "#A66BFF", legend: "#FFB020" }[i.r]), `${i.e} Надето!`); renderTab(); }
+    catch { toast("Не получилось надеть"); }
+  }
+  draw();
+}
+function tick() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain(); o.type = "square"; o.frequency.value = 1800 + Math.random() * 200; o.connect(g); g.connect(actx.destination);
+    const s = actx.currentTime; g.gain.setValueAtTime(.03, s); g.gain.exponentialRampToValueAtTime(.0001, s + .03); o.start(s); o.stop(s + .04);
+  } catch {}
+}
+
 /* ================= boot ================= */
 function boot2() {
   const sp = TG?.initDataUnsafe?.start_param || "", qs = new URLSearchParams(location.search);
   const code = sp.startsWith("m_") ? sp.slice(2) : (qs.get("m") || "");
   setTab(qs.get("tab") === "top" ? "top" : "feed");
+  if (qs.get("tab") === "cases") openCases();
   if (code) openMark(code.toUpperCase());
 }
 new MutationObserver(() => PX.refresh()).observe(document.body, { childList: true, subtree: true });
